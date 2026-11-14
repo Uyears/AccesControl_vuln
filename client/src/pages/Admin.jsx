@@ -117,15 +117,18 @@ export default function Admin() {
                       </span>
                     </td>
                     <td className="align-right">
-                      <button
-                        type="button"
-                        className="btn btn-small btn-danger"
-                        disabled={busyId === item.id || item.id === user.id}
-                        onClick={() => removeUser(item)}
-                        title={item.id === user.id ? 'Tidak bisa menghapus akun sendiri' : ''}
-                      >
-                        {busyId === item.id ? 'Menghapus…' : 'Hapus'}
-                      </button>
+                      {/* UI gate saja: backend tetap harus menolak. */}
+                      {user.role === 'admin' && (
+                        <button
+                          type="button"
+                          className="btn btn-small btn-danger"
+                          disabled={busyId === item.id || item.id === user.id}
+                          onClick={() => removeUser(item)}
+                          title={item.id === user.id ? 'Tidak bisa menghapus akun sendiri' : ''}
+                        >
+                          {busyId === item.id ? 'Menghapus…' : 'Hapus'}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
