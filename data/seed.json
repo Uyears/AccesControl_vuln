@@ -1,0 +1,238 @@
+{
+  "users": [
+    {
+      "id": 1001,
+      "username": "alice",
+      "passwordHash": "$2b$10$tXiOkeIqxFqk2.oEfCflnOd4eNBsQGMP8iLDGU.vQWHMnUacXgGPW",
+      "role": "customer",
+      "name": "Alice Prameswari",
+      "email": "alice@example.test",
+      "phone": "0812-1100-1001",
+      "loyaltyTier": "Silver",
+      "joinedAt": "2023-04-11"
+    },
+    {
+      "id": 1002,
+      "username": "bob",
+      "passwordHash": "$2b$10$ivllHEnm8vMnOoupoLajH.CRXYiYVIhrFXjZfAPTCbzAdy8kKO3Gi",
+      "role": "customer",
+      "name": "Bob Santoso",
+      "email": "bob@example.test",
+      "phone": "0813-2200-1002",
+      "loyaltyTier": "Gold",
+      "joinedAt": "2022-11-02"
+    },
+    {
+      "id": 2001,
+      "username": "dian",
+      "passwordHash": "$2b$10$MxBbH29mSU2VBDvnEP4o4u.cioUrC9uYdg9mBdDehS7P3wZanj9ly",
+      "role": "customer",
+      "name": "Dian Kusuma",
+      "email": "dian@example.test",
+      "phone": "0857-3300-2001",
+      "loyaltyTier": "Silver",
+      "joinedAt": "2024-01-19"
+    },
+    {
+      "id": 9001,
+      "username": "admin",
+      "passwordHash": "$2b$10$cbcV1dz8g2R6C7ZlAj0iz.cjkDkCeGAmj.Si94U4pC7LpUENzeRfa",
+      "role": "admin",
+      "name": "Rani Kusnadi",
+      "email": "rani.ops@example.test",
+      "phone": "021-555-9001",
+      "loyaltyTier": "Staff",
+      "joinedAt": "2021-02-08"
+    }
+  ],
+  "addresses": [
+    {
+      "id": 3001,
+      "userId": 1001,
+      "label": "Rumah",
+      "recipient": "Alice Prameswari",
+      "line1": "Jl. Cempaka Putih Tengah No. 14",
+      "city": "Jakarta Pusat",
+      "postalCode": "10510",
+      "phone": "0812-1100-1001"
+    },
+    {
+      "id": 3002,
+      "userId": 1002,
+      "label": "Kantor",
+      "recipient": "Bob Santoso",
+      "line1": "Jl. Gatot Subroto Kav. 21, Lantai 9",
+      "city": "Jakarta Selatan",
+      "postalCode": "12930",
+      "phone": "0813-2200-1002"
+    },
+    {
+      "id": 3003,
+      "userId": 2001,
+      "label": "Rumah",
+      "recipient": "Dian Kusuma",
+      "line1": "Jl. Kaliurang Km 5 No. 8",
+      "city": "Sleman",
+      "postalCode": "55581",
+      "phone": "0857-3300-2001"
+    },
+    {
+      "id": 3004,
+      "userId": 9001,
+      "label": "Gudang operasional",
+      "recipient": "Rani Kusnadi",
+      "line1": "Jl. Raya Bekasi Km 18, Blok C",
+      "city": "Jakarta Timur",
+      "postalCode": "13910",
+      "phone": "021-555-9001"
+    }
+  ],
+  "orders": [
+    {
+      "id": 5001,
+      "userId": 1001,
+      "addressId": 3001,
+      "status": "Dikirim",
+      "placedAt": "2026-10-28",
+      "courier": "JNE REG",
+      "trackingNumber": "JNE-8841-2210",
+      "items": [
+        { "sku": "KB-K68", "name": "Keyboard mekanikal K68", "qty": 1, "price": 749000 },
+        { "sku": "MP-WOOL", "name": "Mousepad wol 90x40", "qty": 1, "price": 129000 }
+      ],
+      "total": 878000
+    },
+    {
+      "id": 5002,
+      "userId": 1002,
+      "addressId": 3002,
+      "status": "Diproses",
+      "placedAt": "2026-11-02",
+      "courier": "SiCepat",
+      "trackingNumber": "SC-5510-7781",
+      "items": [
+        { "sku": "MA-DUAL", "name": "Monitor arm dual", "qty": 1, "price": 549000 },
+        { "sku": "HUB-7IN1", "name": "USB-C hub 7-in-1", "qty": 1, "price": 389000 }
+      ],
+      "total": 938000
+    },
+    {
+      "id": 5003,
+      "userId": 2001,
+      "addressId": 3003,
+      "status": "Selesai",
+      "placedAt": "2026-10-12",
+      "courier": "AnterAja",
+      "trackingNumber": "AA-2201-3345",
+      "items": [
+        { "sku": "LMP-DESK", "name": "Lampu meja LED", "qty": 1, "price": 219000 }
+      ],
+      "total": 219000
+    },
+    {
+      "id": 5004,
+      "userId": 1001,
+      "addressId": 3001,
+      "status": "Selesai",
+      "placedAt": "2026-09-30",
+      "courier": "JNE REG",
+      "trackingNumber": "JNE-8841-1098",
+      "items": [
+        { "sku": "MAT-DESK", "name": "Mat standing desk", "qty": 1, "price": 259000 },
+        { "sku": "CT-02", "name": "Cable tray under-desk", "qty": 1, "price": 99000 }
+      ],
+      "total": 358000
+    },
+    {
+      "id": 5005,
+      "userId": 1002,
+      "addressId": 3002,
+      "status": "Dibatalkan",
+      "placedAt": "2026-09-21",
+      "courier": "-",
+      "trackingNumber": "-",
+      "items": [
+        { "sku": "SLV-14", "name": "Laptop sleeve 14 inci", "qty": 1, "price": 189000 }
+      ],
+      "total": 189000
+    },
+    {
+      "id": 5006,
+      "userId": 2001,
+      "addressId": 3003,
+      "status": "Dikirim",
+      "placedAt": "2026-11-05",
+      "courier": "SiCepat",
+      "trackingNumber": "SC-5510-9120",
+      "items": [
+        { "sku": "CAM-1080", "name": "Webcam 1080p", "qty": 1, "price": 459000 }
+      ],
+      "total": 459000
+    }
+  ],
+  "tickets": [
+    {
+      "id": 4001,
+      "userId": 1001,
+      "subject": "Paket belum sampai",
+      "status": "open",
+      "createdAt": "2026-11-06T09:12:00Z",
+      "message": "Halo, paket saya tercatat dikirim tanggal 28 Oktober tapi belum ada kabar dari kurir. Nomor order saya 5001. Mohon dibantu cek.",
+      "internalNotes": "Kurir mengaku sudah mencoba antar 2x. Alamat tujuan: Jl. Cempaka Putih Tengah No. 14, Jakarta Pusat.",
+      "replies": [
+        {
+          "author": "support",
+          "at": "2026-11-06T10:40:00Z",
+          "body": "Kami sedang cek ke JNE, estimasi respons 1x24 jam."
+        }
+      ]
+    },
+    {
+      "id": 4002,
+      "userId": 1002,
+      "subject": "Invoice salah alamat",
+      "status": "closed",
+      "createdAt": "2026-10-15T03:05:00Z",
+      "message": "Invoice untuk order 5002 masih memakai alamat kantor lama. Mohon diperbarui.",
+      "internalNotes": "Alamat baru sudah diupdate oleh tim CS. Invoice revisi dikirim ulang 15/10.",
+      "replies": [
+        {
+          "author": "support",
+          "at": "2026-10-15T06:22:00Z",
+          "body": "Invoice revisi sudah dikirim ke email terdaftar."
+        }
+      ]
+    },
+    {
+      "id": 4003,
+      "userId": 2001,
+      "subject": "Klaim garansi monitor arm",
+      "status": "open",
+      "createdAt": "2026-11-09T02:48:00Z",
+      "message": "Monitor arm yang saya terima goyang. Saya lampirkan deskripsi kerusakan. Order terkait 5006.",
+      "internalNotes": "Pelanggan meminta penggantian unit. Alamat penjemputan: Jl. Kaliurang Km 5 No. 8, Sleman. Kontak 0857-3300-2001.",
+      "replies": []
+    },
+    {
+      "id": 4004,
+      "userId": 1001,
+      "subject": "Ubah ukuran kaos",
+      "status": "closed",
+      "createdAt": "2026-09-25T07:30:00Z",
+      "message": "Bisa tukar kaos dari M ke L?",
+      "internalNotes": "Stok L tersedia, penukaran diproses lewat gudang.",
+      "replies": [
+        {
+          "author": "support",
+          "at": "2026-09-25T09:00:00Z",
+          "body": "Bisa, silakan kirim balik ke alamat gudang."
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    { "at": "2026-11-12T01:10:00Z", "actor": "system", "action": "seed.load", "detail": "Dataset demo dimuat ke memori." },
+    { "at": "2026-11-12T01:12:00Z", "actor": "admin", "action": "order.reconcile", "detail": "Rekonsiliasi order 5002 dengan kurir." },
+    { "at": "2026-11-12T01:30:00Z", "actor": "admin", "action": "ticket.assign", "detail": "Tiket 4003 diteruskan ke tim garansi." }
+  ]
+}
