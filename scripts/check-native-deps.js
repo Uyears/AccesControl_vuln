@@ -14,9 +14,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT = path.join(__dirname, '..');
+// Argumen opsional: folder yang diperiksa (default root repo). make-portable
+// memakai ini untuk memeriksa release/lab setelah dependency produksi dipasang.
+const ROOT = path.resolve(process.argv[2] || path.join(__dirname, '..'));
 const LOCK_PATH = path.join(ROOT, 'package-lock.json');
-const NODE_MODULES = path.join(ROOT, 'node_modules');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
