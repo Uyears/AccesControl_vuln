@@ -1,5 +1,5 @@
 node_modules/
-server/public/
 release/
+server/public/
 *.log
 .DS_Store
