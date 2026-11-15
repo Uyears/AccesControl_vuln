@@ -20,6 +20,10 @@ function createAuth(options = {}) {
     secret,
     ttlSeconds: TOKEN_TTL_SECONDS,
 
+    hashPassword(plain) {
+      return bcrypt.hash(plain, 10);
+    },
+
     verifyPassword(plain, hash) {
       return bcrypt.compare(plain, hash);
     },
@@ -31,7 +35,7 @@ function createAuth(options = {}) {
         {
           algorithm: 'HS256',
           subject: String(user.id),
-          issuer: 'bac-lab',
+          issuer: 'nusasupply',
           expiresIn: TOKEN_TTL_SECONDS,
         }
       );
@@ -40,7 +44,7 @@ function createAuth(options = {}) {
     verifyToken(token) {
       return jwt.verify(token, secret, {
         algorithms: ['HS256'],
-        issuer: 'bac-lab',
+        issuer: 'nusasupply',
       });
     },
   };

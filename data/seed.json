@@ -3,8 +3,9 @@
     {
       "id": 1001,
       "username": "alice",
-      "passwordHash": "$2b$10$tXiOkeIqxFqk2.oEfCflnOd4eNBsQGMP8iLDGU.vQWHMnUacXgGPW",
+      "passwordHash": "$2b$10$Lw.xAK9nP0Hktqyrb69f3ObaoDiP3vLPdnSNifD4v61FtDqqOrOtS",
       "role": "customer",
+      "status": "active",
       "name": "Alice Prameswari",
       "email": "alice@example.test",
       "phone": "0812-1100-1001",
@@ -14,8 +15,9 @@
     {
       "id": 1002,
       "username": "bob",
-      "passwordHash": "$2b$10$ivllHEnm8vMnOoupoLajH.CRXYiYVIhrFXjZfAPTCbzAdy8kKO3Gi",
+      "passwordHash": "$2b$10$Ktf1kf92vGr6vBBJxzp/oOnH1z3WMAw8ZV5144hiQGVmOQMf99/IK",
       "role": "customer",
+      "status": "active",
       "name": "Bob Santoso",
       "email": "bob@example.test",
       "phone": "0813-2200-1002",
@@ -25,19 +27,45 @@
     {
       "id": 2001,
       "username": "dian",
-      "passwordHash": "$2b$10$MxBbH29mSU2VBDvnEP4o4u.cioUrC9uYdg9mBdDehS7P3wZanj9ly",
+      "passwordHash": "$2b$10$Lw.xAK9nP0Hktqyrb69f3ObaoDiP3vLPdnSNifD4v61FtDqqOrOtS",
       "role": "customer",
-      "name": "Dian Kusuma",
+      "status": "active",
+      "name": "Dian Permata",
       "email": "dian@example.test",
-      "phone": "0857-3300-2001",
-      "loyaltyTier": "Silver",
-      "joinedAt": "2024-01-19"
+      "phone": "0813-3300-2001",
+      "loyaltyTier": "Bronze",
+      "joinedAt": "2024-01-09"
+    },
+    {
+      "id": 8001,
+      "username": "toko.alpha",
+      "passwordHash": "$2b$10$Ds1THcqBE//BvYJL1EI5xO5VJmnjFaNot9NFdOfR4uRh7qKDs8Gp.",
+      "role": "seller",
+      "status": "active",
+      "name": "Andi Wijaya",
+      "email": "andi@alphaworks.example",
+      "phone": "0811-8001-11",
+      "loyaltyTier": "Partner",
+      "joinedAt": "2021-08-16"
+    },
+    {
+      "id": 8002,
+      "username": "toko.bravo",
+      "passwordHash": "$2b$10$Ds1THcqBE//BvYJL1EI5xO5VJmnjFaNot9NFdOfR4uRh7qKDs8Gp.",
+      "role": "seller",
+      "status": "active",
+      "name": "Maya Sari",
+      "email": "maya@bravooffice.example",
+      "phone": "0812-8002-22",
+      "loyaltyTier": "Partner",
+      "joinedAt": "2022-02-03"
     },
     {
       "id": 9001,
       "username": "admin",
-      "passwordHash": "$2b$10$cbcV1dz8g2R6C7ZlAj0iz.cjkDkCeGAmj.Si94U4pC7LpUENzeRfa",
+      "passwordHash": "$2b$10$mFj08gLyrcUrqFxON4K0FO9tjwf2kbgLOcmS4776mpNRhYjq0PTCW",
       "role": "admin",
+      "status": "active",
       "name": "Rani Kusnadi",
       "email": "rani.ops@example.test",
       "phone": "021-555-9001",
@@ -70,11 +98,11 @@
       "id": 3003,
       "userId": 2001,
       "label": "Rumah",
-      "recipient": "Dian Kusuma",
-      "line1": "Jl. Kaliurang Km 5 No. 8",
-      "city": "Sleman",
-      "postalCode": "55581",
-      "phone": "0857-3300-2001"
+      "recipient": "Dian Permata",
+      "line1": "Jl. Melati Raya No. 8",
+      "city": "Bandung",
+      "postalCode": "40115",
+      "phone": "0813-3300-2001"
     },
     {
       "id": 3004,
@@ -85,6 +113,132 @@
       "city": "Jakarta Timur",
       "postalCode": "13910",
       "phone": "021-555-9001"
+    },
+    {
+      "id": 3005,
+      "userId": 8001,
+      "label": "Gudang Alpha Works",
+      "recipient": "Andi Wijaya",
+      "line1": "Jl. Soekarno-Hatta No. 88",
+      "city": "Bandung",
+      "postalCode": "40286",
+      "phone": "0811-8001-11"
+    },
+    {
+      "id": 3006,
+      "userId": 8002,
+      "label": "Gudang Bravo Office",
+      "recipient": "Maya Sari",
+      "line1": "Jl. Rungkut Industri No. 12",
+      "city": "Surabaya",
+      "postalCode": "60293",
+      "phone": "0812-8002-22"
+    }
+  ],
+  "products": [
+    {
+      "id": 101,
+      "sellerId": 8001,
+      "sellerName": "Alpha Works",
+      "sku": "KB-K68",
+      "name": "Keyboard mekanikal K68",
+      "description": "Keyboard 65% dengan switch linear, casing aluminium, dan kabel USB-C anyaman.",
+      "category": "Periferal",
+      "price": 749000,
+      "stock": 12,
+      "active": true,
+      "tone": "slate"
+    },
+    {
+      "id": 102,
+      "sellerId": 8001,
+      "sellerName": "Alpha Works",
+      "sku": "MP-WOOL",
+      "name": "Mousepad wol 90x40",
+      "description": "Permukaan wol halus dengan alas karet, cukup lebar untuk keyboard dan mouse.",
+      "category": "Aksesori",
+      "price": 129000,
+      "stock": 30,
+      "active": true,
+      "tone": "sand"
+    },
+    {
+      "id": 103,
+      "sellerId": 8001,
+      "sellerName": "Alpha Works",
+      "sku": "LMP-DESK",
+      "name": "Lampu meja LED",
+      "description": "Lampu meja dengan tiga suhu warna dan lengan fleksibel untuk area kerja.",
+      "category": "Pencahayaan",
+      "price": 219000,
+      "stock": 18,
+      "active": true,
+      "tone": "amber"
+    },
+    {
+      "id": 104,
+      "sellerId": 8002,
+      "sellerName": "Bravo Office",
+      "sku": "MA-DUAL",
+      "name": "Monitor arm dual",
+      "description": "Lengan monitor dual dengan rentang gerak penuh dan manajemen kabel.",
+      "category": "Ergonomi",
+      "price": 549000,
+      "stock": 7,
+      "active": true,
+      "tone": "blue"
+    },
+    {
+      "id": 105,
+      "sellerId": 8002,
+      "sellerName": "Bravo Office",
+      "sku": "HUB-7IN1",
+      "name": "USB-C hub 7-in-1",
+      "description": "Hub dengan HDMI, USB-A, SD card, dan pass-through charging 100W.",
+      "category": "Periferal",
+      "price": 389000,
+      "stock": 15,
+      "active": true,
+      "tone": "teal"
+    },
+    {
+      "id": 106,
+      "sellerId": 8002,
+      "sellerName": "Bravo Office",
+      "sku": "SLV-14",
+      "name": "Laptop sleeve 14 inci",
+      "description": "Sleeve berlapis busa dengan kompartemen aksesori dan penutup magnet.",
+      "category": "Aksesori",
+      "price": 189000,
+      "stock": 20,
+      "active": true,
+      "tone": "rose"
+    },
+    {
+      "id": 107,
+      "sellerId": 8002,
+      "sellerName": "Bravo Office",
+      "sku": "CAM-1080",
+      "name": "Webcam 1080p",
+      "description": "Webcam dengan mikrofon ganda, autofocus, dan penutup lensa privat.",
+      "category": "Periferal",
+      "price": 459000,
+      "stock": 9,
+      "active": true,
+      "tone": "violet"
+    },
+    {
+      "id": 108,
+      "sellerId": 8001,
+      "sellerName": "Alpha Works",
+      "sku": "CT-UD",
+      "name": "Cable tray under-desk",
+      "description": "Baki kabel di bawah meja untuk merapikan adaptor dan kabel daya.",
+      "category": "Ergonomi",
+      "price": 99000,
+      "stock": 25,
+      "active": true,
+      "tone": "stone"
     }
   ],
   "orders": [
@@ -93,12 +247,13 @@
       "userId": 1001,
       "addressId": 3001,
       "status": "Dikirim",
-      "placedAt": "2026-10-28",
+      "paymentStatus": "paid",
+      "placedAt": "2026-10-28T09:20:00Z",
       "courier": "JNE REG",
       "trackingNumber": "JNE-8841-2210",
       "items": [
-        { "sku": "KB-K68", "name": "Keyboard mekanikal K68", "qty": 1, "price": 749000 },
-        { "sku": "MP-WOOL", "name": "Mousepad wol 90x40", "qty": 1, "price": 129000 }
+        { "productId": 101, "sku": "KB-K68", "name": "Keyboard mekanikal K68", "qty": 1, "price": 749000 },
+        { "productId": 102, "sku": "MP-WOOL", "name": "Mousepad wol 90x40", "qty": 1, "price": 129000 }
       ],
       "total": 878000
     },
@@ -107,12 +262,13 @@
       "userId": 1002,
       "addressId": 3002,
       "status": "Diproses",
-      "placedAt": "2026-11-02",
+      "paymentStatus": "paid",
+      "placedAt": "2026-11-02T04:15:00Z",
       "courier": "SiCepat",
       "trackingNumber": "SC-5510-7781",
       "items": [
-        { "sku": "MA-DUAL", "name": "Monitor arm dual", "qty": 1, "price": 549000 },
-        { "sku": "HUB-7IN1", "name": "USB-C hub 7-in-1", "qty": 1, "price": 389000 }
+        { "productId": 104, "sku": "MA-DUAL", "name": "Monitor arm dual", "qty": 1, "price": 549000 },
+        { "productId": 105, "sku": "HUB-7IN1", "name": "USB-C hub 7-in-1", "qty": 1, "price": 389000 }
       ],
       "total": 938000
     },
@@ -120,84 +276,225 @@
       "id": 5003,
       "userId": 2001,
       "addressId": 3003,
-      "status": "Selesai",
-      "placedAt": "2026-10-12",
-      "courier": "AnterAja",
-      "trackingNumber": "AA-2201-3345",
+      "status": "Dikirim",
+      "paymentStatus": "paid",
+      "placedAt": "2026-09-12T02:30:00Z",
+      "courier": "JNE REG",
+      "trackingNumber": "JNE-7742-3301",
       "items": [
-        { "sku": "LMP-DESK", "name": "Lampu meja LED", "qty": 1, "price": 219000 }
+        { "productId": 103, "sku": "LP-LED", "name": "Lampu meja LED", "qty": 1, "price": 219000 }
       ],
       "total": 219000
+    },
+    {
+      "id": 5006,
+      "userId": 2001,
+      "addressId": 3003,
+      "status": "Selesai",
+      "paymentStatus": "paid",
+      "placedAt": "2026-07-19T06:10:00Z",
+      "courier": "AnterAja",
+      "trackingNumber": "AA-3312-9002",
+      "items": [
+        { "productId": 106, "sku": "SL-14", "name": "Laptop sleeve 14 inci", "qty": 1, "price": 189000 }
+      ],
+      "total": 189000
     },
     {
       "id": 5004,
       "userId": 1001,
       "addressId": 3001,
       "status": "Selesai",
-      "placedAt": "2026-09-30",
+      "paymentStatus": "paid",
+      "placedAt": "2026-09-30T07:05:00Z",
       "courier": "JNE REG",
       "trackingNumber": "JNE-8841-1098",
       "items": [
-        { "sku": "MAT-DESK", "name": "Mat standing desk", "qty": 1, "price": 259000 },
-        { "sku": "CT-02", "name": "Cable tray under-desk", "qty": 1, "price": 99000 }
+        { "productId": 108, "sku": "CT-UD", "name": "Cable tray under-desk", "qty": 1, "price": 99000 },
+        { "productId": 102, "sku": "MP-WOOL", "name": "Mousepad wol 90x40", "qty": 2, "price": 129000 }
       ],
-      "total": 358000
+      "total": 357000
     },
     {
       "id": 5005,
       "userId": 1002,
       "addressId": 3002,
       "status": "Dibatalkan",
-      "placedAt": "2026-09-21",
+      "paymentStatus": "refunded",
+      "placedAt": "2026-09-21T10:10:00Z",
       "courier": "-",
       "trackingNumber": "-",
       "items": [
-        { "sku": "SLV-14", "name": "Laptop sleeve 14 inci", "qty": 1, "price": 189000 }
+        { "productId": 106, "sku": "SLV-14", "name": "Laptop sleeve 14 inci", "qty": 1, "price": 189000 }
       ],
       "total": 189000
     },
     {
-      "id": 5006,
-      "userId": 2001,
-      "addressId": 3003,
-      "status": "Dikirim",
-      "placedAt": "2026-11-05",
-      "courier": "SiCepat",
-      "trackingNumber": "SC-5510-9120",
+      "id": 5007,
+      "userId": 9001,
+      "addressId": 3004,
+      "status": "Selesai",
+      "paymentStatus": "paid",
+      "placedAt": "2026-08-14T06:30:00Z",
+      "courier": "Kantor",
+      "trackingNumber": "-",
       "items": [
-        { "sku": "CAM-1080", "name": "Webcam 1080p", "qty": 1, "price": 459000 }
+        { "productId": 105, "sku": "HUB-7IN1", "name": "USB-C hub 7-in-1", "qty": 1, "price": 389000 }
       ],
-      "total": 459000
+      "total": 389000
+    },
+    {
+      "id": 5008,
+      "userId": 1001,
+      "addressId": 3001,
+      "status": "Menunggu pembayaran",
+      "paymentStatus": "unpaid",
+      "placedAt": "2026-11-10T08:00:00Z",
+      "courier": "-",
+      "trackingNumber": "-",
+      "items": [
+        { "productId": 101, "sku": "KB-K68", "name": "Keyboard mekanikal K68", "qty": 1, "price": 749000 }
+      ],
+      "total": 749000
+    }
+  ],
+  "invoices": [
+    {
+      "id": 7001,
+      "number": "INV-2026-7001",
+      "orderId": 5001,
+      "userId": 1001,
+      "issuedAt": "2026-10-28",
+      "dueAt": "2026-11-04",
+      "status": "paid",
+      "subtotal": 878000,
+      "tax": 0,
+      "shipping": 0,
+      "total": 878000,
+      "paidAt": "2026-10-28T09:25:00Z"
+    },
+    {
+      "id": 7002,
+      "number": "INV-2026-7002",
+      "orderId": 5002,
+      "userId": 1002,
+      "issuedAt": "2026-11-02",
+      "dueAt": "2026-11-09",
+      "status": "paid",
+      "subtotal": 938000,
+      "tax": 0,
+      "shipping": 0,
+      "total": 938000,
+      "paidAt": "2026-11-02T04:22:00Z"
+    },
+    {
+      "id": 7004,
+      "number": "INV-2026-7004",
+      "orderId": 5008,
+      "userId": 1001,
+      "issuedAt": "2026-11-10",
+      "dueAt": "2026-11-17",
+      "status": "unpaid",
+      "subtotal": 749000,
+      "tax": 0,
+      "shipping": 0,
+      "total": 749000,
+      "paidAt": null
+    },
+    {
+      "id": 7005,
+      "number": "INV-2026-7005",
+      "orderId": 5007,
+      "userId": 9001,
+      "issuedAt": "2026-08-14",
+      "dueAt": "2026-08-21",
+      "status": "paid",
+      "subtotal": 389000,
+      "tax": 0,
+      "shipping": 0,
+      "total": 389000,
+      "paidAt": "2026-08-14T06:38:00Z"
+    },
+    {
+      "id": 7006,
+      "number": "INV-2026-7006",
+      "orderId": 5004,
+      "userId": 1001,
+      "issuedAt": "2026-09-30",
+      "dueAt": "2026-10-07",
+      "status": "paid",
+      "subtotal": 357000,
+      "tax": 0,
+      "shipping": 0,
+      "total": 357000,
+      "paidAt": "2026-09-30T07:12:00Z"
     }
   ],
   "tickets": [
     {
       "id": 4001,
       "userId": 1001,
+      "orderId": 5001,
       "subject": "Paket belum sampai",
       "status": "open",
       "createdAt": "2026-11-06T09:12:00Z",
-      "message": "Halo, paket saya tercatat dikirim tanggal 28 Oktober tapi belum ada kabar dari kurir. Nomor order saya 5001. Mohon dibantu cek.",
-      "internalNotes": "Kurir mengaku sudah mencoba antar 2x. Alamat tujuan: Jl. Cempaka Putih Tengah No. 14, Jakarta Pusat.",
-      "replies": [
+      "updatedAt": "2026-11-06T10:40:00Z",
+      "internalNotes": "Kurir mengaku sudah mencoba antar 2x. Alamat tujuan: Jl. Cempaka Putih Tengah No. 14, Jakarta Pusat. Kontak 0812-1100-1001.",
+      "messages": [
         {
-          "author": "support",
+          "id": 1,
+          "authorId": 1001,
+          "authorName": "Alice Prameswari",
+          "authorRole": "customer",
+          "internal": false,
+          "at": "2026-11-06T09:12:00Z",
+          "body": "Halo, paket saya tercatat dikirim tanggal 28 Oktober tapi belum ada kabar dari kurir. Nomor order saya 5001. Mohon dibantu cek."
+        },
+        {
+          "id": 2,
+          "authorId": 9001,
+          "authorName": "Rani Kusnadi",
+          "authorRole": "admin",
+          "internal": false,
           "at": "2026-11-06T10:40:00Z",
           "body": "Kami sedang cek ke JNE, estimasi respons 1x24 jam."
+        },
+        {
+          "id": 3,
+          "authorId": 9001,
+          "authorName": "Rani Kusnadi",
+          "authorRole": "admin",
+          "internal": true,
+          "at": "2026-11-06T10:38:00Z",
+          "body": "Cek manifest JNE: paket tertahan di sortir. Hubungi kontak pelanggan 0812-1100-1001 bila belum bergerak besok."
         }
       ]
     },
     {
       "id": 4002,
       "userId": 1002,
+      "orderId": 5002,
       "subject": "Invoice salah alamat",
       "status": "closed",
       "createdAt": "2026-10-15T03:05:00Z",
-      "message": "Invoice untuk order 5002 masih memakai alamat kantor lama. Mohon diperbarui.",
-      "internalNotes": "Alamat baru sudah diupdate oleh tim CS. Invoice revisi dikirim ulang 15/10.",
-      "replies": [
+      "updatedAt": "2026-10-15T06:22:00Z",
+      "internalNotes": "Alamat baru sudah diupdate oleh tim CS. Invoice revisi dikirim ulang 15/10 ke bob@example.test.",
+      "messages": [
         {
-          "author": "support",
+          "id": 4,
+          "authorId": 1002,
+          "authorName": "Bob Santoso",
+          "authorRole": "customer",
+          "internal": false,
+          "at": "2026-10-15T03:05:00Z",
+          "body": "Invoice untuk order 5002 masih memakai alamat kantor lama. Mohon diperbarui."
+        },
+        {
+          "id": 5,
+          "authorId": 9001,
+          "authorName": "Rani Kusnadi",
+          "authorRole": "admin",
+          "internal": false,
           "at": "2026-10-15T06:22:00Z",
           "body": "Invoice revisi sudah dikirim ke email terdaftar."
         }
@@ -206,33 +503,232 @@
     {
       "id": 4003,
       "userId": 2001,
-      "subject": "Klaim garansi monitor arm",
-      "status": "open",
-      "createdAt": "2026-11-09T02:48:00Z",
-      "message": "Monitor arm yang saya terima goyang. Saya lampirkan deskripsi kerusakan. Order terkait 5006.",
-      "internalNotes": "Pelanggan meminta penggantian unit. Alamat penjemputan: Jl. Kaliurang Km 5 No. 8, Sleman. Kontak 0857-3300-2001.",
-      "replies": []
+      "orderId": 5003,
+      "subject": "Lampu meja berkedip",
+      "status": "closed",
+      "createdAt": "2026-09-20T04:00:00Z",
+      "updatedAt": "2026-09-22T08:30:00Z",
+      "internalNotes": "Unit pengganti dikirim 21/09. Pelanggan mengonfirmasi barang diterima.",
+      "messages": [
+        {
+          "id": 6,
+          "authorId": 2001,
+          "authorName": "Dian Permata",
+          "authorRole": "customer",
+          "internal": false,
+          "at": "2026-09-20T04:00:00Z",
+          "body": "Lampu meja dari order 5003 berkedip setelah dipakai dua hari. Apakah bisa ditukar?"
+        },
+        {
+          "id": 7,
+          "authorId": 9001,
+          "authorName": "Rani Kusnadi",
+          "authorRole": "admin",
+          "internal": false,
+          "at": "2026-09-22T08:30:00Z",
+          "body": "Unit pengganti sudah dikirim. Mohon konfirmasi bila sudah diterima."
+        }
+      ]
     },
     {
       "id": 4004,
       "userId": 1001,
+      "orderId": 5004,
       "subject": "Ubah ukuran kaos",
       "status": "closed",
       "createdAt": "2026-09-25T07:30:00Z",
-      "message": "Bisa tukar kaos dari M ke L?",
+      "updatedAt": "2026-09-25T09:00:00Z",
       "internalNotes": "Stok L tersedia, penukaran diproses lewat gudang.",
-      "replies": [
+      "messages": [
         {
-          "author": "support",
+          "id": 7,
+          "authorId": 1001,
+          "authorName": "Alice Prameswari",
+          "authorRole": "customer",
+          "internal": false,
+          "at": "2026-09-25T07:30:00Z",
+          "body": "Bisa tukar kaos dari M ke L?"
+        },
+        {
+          "id": 8,
+          "authorId": 9001,
+          "authorName": "Rani Kusnadi",
+          "authorRole": "admin",
+          "internal": false,
           "at": "2026-09-25T09:00:00Z",
           "body": "Bisa, silakan kirim balik ke alamat gudang."
         }
       ]
     }
   ],
+  "folders": [
+    {
+      "id": 1,
+      "orgId": "org-alpha",
+      "name": "Alpha Works - Kontrak & Legal",
+      "ownerId": 8001
+    },
+    {
+      "id": 2,
+      "orgId": "org-bravo",
+      "name": "Bravo Office - Penawaran",
+      "ownerId": 8002
+    },
+    {
+      "id": 3,
+      "orgId": null,
+      "name": "Dokumen pribadi",
+      "ownerId": 1001
+    }
+  ],
+  "documents": [
+    {
+      "id": 1,
+      "folderId": 1,
+      "ownerId": 8001,
+      "filename": "kontrak-kerjasama-2026.txt",
+      "mime": "text/plain",
+      "size": 322,
+      "createdAt": "2026-08-21T04:20:00Z",
+      "seedContent": "KONTRAK KERJASAMA 2026\n\nPihak: Alpha Works x Nusa Supply\nNomor: AW-NS-2026-014\nMasa berlaku: 1 Januari - 31 Desember 2026\n\nRuang lingkup: penyediaan periferal dan aksesori kerja untuk katalog Nusa Supply.\nData fiktif.\n"
+    },
+    {
+      "id": 2,
+      "folderId": 2,
+      "ownerId": 8002,
+      "filename": "penawaran-harga-q4-2026.txt",
+      "mime": "text/plain",
+      "size": 286,
+      "createdAt": "2026-09-04T02:10:00Z",
+      "seedContent": "PENAWARAN HARGA Q4 2026\n\nPenyedia: Bravo Office\nNomor: BO-Q4-2026-07\nKatalog: perlengkapan kantor dan ergonomi\n\nData fiktif.\n"
+    },
+    {
+      "id": 3,
+      "folderId": 3,
+      "ownerId": 1001,
+      "filename": "catatan-pengiriman.txt",
+      "mime": "text/plain",
+      "size": 182,
+      "createdAt": "2026-11-07T06:45:00Z",
+      "seedContent": "CATATAN PENGIRIMAN\n\nOrder 5001 - JNE REG - JNE-8841-2210\nInstruksi: titip ke resepsionis bila tidak ada orang.\nData fiktif.\n"
+    }
+  ],
+  "employees": [
+    {
+      "guid": "3f2b8c1e-5a4d-4f7a-9b2e-7c1d0a6f8e21",
+      "userId": 8001,
+      "name": "Andi Wijaya",
+      "title": "Pemilik Alpha Works",
+      "department": "Partner Marketplace",
+      "location": "Bandung",
+      "bio": "Membangun Alpha Works sejak 2018 dan fokus pada periferal kerja yang tahan lama.",
+      "email": "andi@alphaworks.example",
+      "phone": "+62 811-8001-11"
+    },
+    {
+      "guid": "8c4d2a70-1b9e-4c3f-a6d5-2e7f9b0c1a34",
+      "userId": 8002,
+      "name": "Maya Sari",
+      "title": "Direktur Bravo Office",
+      "department": "Partner Marketplace",
+      "location": "Surabaya",
+      "bio": "Mengelola kategori ergonomi dan pengadaan kantor untuk wilayah timur.",
+      "email": "maya@bravooffice.example",
+      "phone": "+62 812-8002-22"
+    },
+    {
+      "guid": "d91e6b52-7c08-4a1f-8e43-5b2c9d7a0f68",
+      "userId": 9001,
+      "name": "Rani Kusnadi",
+      "title": "Manajer Operasional",
+      "department": "Operations",
+      "location": "Jakarta",
+      "bio": "Menangani rekonsiliasi pesanan, layanan pelanggan, dan proses gudang.",
+      "email": "rani.ops@example.test",
+      "phone": "021-555-9001"
+    }
+  ],
+  "articles": [
+    {
+      "id": 1,
+      "slug": "merapikan-meja-kerja",
+      "title": "Lima cara merapikan meja kerja tanpa renovasi",
+      "excerpt": "Perubahan kecil pada kabel, pencahayaan, dan posisi monitor bisa membuat meja kerja terasa jauh lebih lega.",
+      "category": "Ruang Kerja",
+      "authorGuid": "3f2b8c1e-5a4d-4f7a-9b2e-7c1d0a6f8e21",
+      "publishedAt": "2026-10-30",
+      "tone": "blue",
+      "body": [
+        "Meja kerja yang rapi bukan soal memiliki lebih sedikit barang. Yang paling berpengaruh biasanya adalah jalur kabel, posisi monitor, dan permukaan yang benar-benar kosong untuk bekerja.",
+        "Mulai dari bawah meja: satukan adaptor dan kabel daya di satu baki, lalu beri jarak minimal sepuluh sentimeter dari lutut. Setelah itu, naikkan monitor sehingga garis pandang berada di sepertiga atas layar.",
+        "Lampu meja dengan suhu warna netral membantu mengurangi bayangan di area menulis. Terakhir, sisakan satu area kosong seukuran buku catatan yang tidak dipakai untuk menyimpan apa pun."
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "pengadaan-perlengkapan-kantor",
+      "title": "Menyusun daftar pengadaan kantor yang masuk akal",
+      "excerpt": "Daftar pengadaan yang baik dimulai dari pemakaian nyata, bukan dari katalog pemasok.",
+      "category": "Operasional",
+      "authorGuid": "d91e6b52-7c08-4a1f-8e43-5b2c9d7a0f68",
+      "publishedAt": "2026-10-18",
+      "tone": "teal",
+      "body": [
+        "Tim operasional sering menerima daftar pengadaan yang terlalu panjang karena setiap tim menambahkan item tanpa melihat stok yang masih berjalan.",
+        "Mulai dengan data pemakaian tiga bulan terakhir, lalu pisahkan barang habis pakai dari barang modal. Untuk barang modal, catat siapa pemegang aset dan kapan terakhir diperiksa.",
+        "Sisakan sekitar sepuluh persen anggaran untuk kebutuhan mendadak. Daftar yang terlalu kaku biasanya berakhir dengan pembelian darurat yang lebih mahal."
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "memilih-monitor-arm",
+      "title": "Monitor arm: kapan worth it dan kapan tidak",
+      "excerpt": "Monitor arm bukan selalu jawaban untuk meja yang sempit. Ada tiga hal yang perlu diukur lebih dulu.",
+      "category": "Ergonomi",
+      "authorGuid": "8c4d2a70-1b9e-4c3f-a6d5-2e7f9b0c1a34",
+      "publishedAt": "2026-09-26",
+      "tone": "violet",
+      "body": [
+        "Monitor arm paling berguna ketika meja memiliki kedalaman terbatas dan monitor bawaan memakan ruang di depan keyboard.",
+        "Ukur ketebalan meja, jarak dari tepi belakang ke dinding, dan berat monitor. Arm dengan clamp membutuhkan permukaan yang rata; meja berongga biasanya memerlukan pelat penguat.",
+        "Jika monitor jarang dipindahkan dan meja sudah cukup dalam, stand bawaan dengan penyangga kecil bisa lebih sederhana dan lebih murah."
+      ]
+    }
+  ],
+  "settings": {
+    "maintenanceMode": false,
+    "allowRegistration": true,
+    "taxRate": 0,
+    "supportEmail": "bantuan@nusa.example"
+  },
+  "roleChangeRequests": [
+    {
+      "id": 1,
+      "targetId": 1001,
+      "role": "admin",
+      "requestedBy": 9001,
+      "status": "pending",
+      "createdAt": "2026-11-11T02:00:00Z"
+    }
+  ],
   "auditLog": [
-    { "at": "2026-11-12T01:10:00Z", "actor": "system", "action": "seed.load", "detail": "Dataset demo dimuat ke memori." },
-    { "at": "2026-11-12T01:12:00Z", "actor": "admin", "action": "order.reconcile", "detail": "Rekonsiliasi order 5002 dengan kurir." },
-    { "at": "2026-11-12T01:30:00Z", "actor": "admin", "action": "ticket.assign", "detail": "Tiket 4003 diteruskan ke tim garansi." }
+    {
+      "at": "2026-11-12T01:10:00Z",
+      "actor": "system",
+      "action": "seed.load",
+      "detail": "Dataset awal dimuat ke memori."
+    },
+    {
+      "at": "2026-11-12T01:12:00Z",
+      "actor": "admin",
+      "action": "order.reconcile",
+      "detail": "Rekonsiliasi order 5002 dengan kurir."
+    },
+    {
+      "at": "2026-11-12T01:30:00Z",
+      "actor": "admin",
+      "action": "ticket.assign",
+      "detail": "Tiket 4002 diteruskan ke tim garansi."
+    }
   ]
 }

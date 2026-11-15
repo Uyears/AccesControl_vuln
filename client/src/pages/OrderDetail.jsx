@@ -37,7 +37,7 @@ export default function OrderDetail({ params }) {
       />
 
       {!data && !error && <LoadingRow />}
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       {data && (
         <div className="two-col">
@@ -47,36 +47,38 @@ export default function OrderDetail({ params }) {
               <StatusBadge status={data.order.status} />
             </div>
 
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Produk</th>
-                  <th>SKU</th>
-                  <th className="align-right">Qty</th>
-                  <th className="align-right">Harga</th>
-                  <th className="align-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.order.items.map((item) => (
-                  <tr key={item.sku}>
-                    <td>{item.name}</td>
-                    <td className="mono muted">{item.sku}</td>
-                    <td className="align-right">{item.qty}</td>
-                    <td className="align-right">{formatRupiah(item.price)}</td>
-                    <td className="align-right">{formatRupiah(item.price * item.qty)}</td>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Produk</th>
+                    <th>SKU</th>
+                    <th className="align-right">Qty</th>
+                    <th className="align-right">Harga</th>
+                    <th className="align-right">Subtotal</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th colSpan={4} className="align-right">
-                    Total
-                  </th>
-                  <th className="align-right">{formatRupiah(data.order.total)}</th>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody>
+                  {data.order.items.map((item) => (
+                    <tr key={item.sku}>
+                      <td>{item.name}</td>
+                      <td className="mono muted">{item.sku}</td>
+                      <td className="align-right">{item.qty}</td>
+                      <td className="align-right">{formatRupiah(item.price)}</td>
+                      <td className="align-right">{formatRupiah(item.price * item.qty)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colSpan={4} className="align-right">
+                      Total
+                    </th>
+                    <th className="align-right">{formatRupiah(data.order.total)}</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
 
             <dl className="def-list compact">
               <div>

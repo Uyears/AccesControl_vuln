@@ -150,6 +150,8 @@ AKUN DEMO
   bob   / Password123!   (customer)
   dian  / Password123!   (customer)
   admin / Admin!2024     (admin)
+  toko.alpha / Seller123! (seller)
+  toko.bravo / Seller123! (seller)
 
 RESET DATA
   Hentikan server lalu jalankan ulang. Tidak ada endpoint reset.
@@ -163,7 +165,7 @@ BURP SUITE
 
 # 6. Verifikasi dependency produksi.
 Write-Host "[portable] memeriksa native addon..."
-Invoke-Checked "node" @((Join-Path $Root "scripts\check-native-deps.js")) $Root
+Invoke-Checked "node" @((Join-Path $Root "scripts\check-native-deps.js")) $LabDir
 
 # 7. Zip final.
 if (-not $SkipZip) {

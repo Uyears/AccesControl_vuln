@@ -23,8 +23,8 @@ penyimpanan password, dan penandatanganan token sengaja dibuat benar.
 | Frontend | Di-build ke `server/public`, disajikan Express |
 | Bundle | **Tidak diminify**, sourcemap aktif (bahan recon) |
 | Default bind | `127.0.0.1:3000` |
-| Dependency produksi | `express`, `jsonwebtoken`, `bcryptjs` — semuanya pure JS |
-| Tes | `node:test`, 24 tes, dua instance (VULN + SECURE) di port acak |
+| Dependency produksi | `express`, `jsonwebtoken`, `bcryptjs`, `multer`, `pdf-lib` — semuanya pure JS |
+| Tes | `node:test`, 30 tes, dua instance (VULN + SECURE) di port acak |
 
 ---
 
@@ -90,6 +90,8 @@ node scripts/check-native-deps.js
 | `bob` | `Password123!` | customer | 1002 | order 5002, 5005; alamat 3002; tiket 4002 |
 | `dian` | `Password123!` | customer | 2001 | akun korban demo penghapusan; order 5003, 5006; tiket 4003 |
 | `admin` | `Admin!2024` | admin | 9001 | Rani Kusnadi, staf operasional |
+| `toko.alpha` | `Seller123!` | seller | 8001 | Andi Wijaya, pemilik folder dokumen Alpha Works |
+| `toko.bravo` | `Seller123!` | seller | 8002 | Maya Sari, pemilik folder dokumen Bravo Office |
 
 Token disimpan frontend di `localStorage` dan dikirim sebagai
 `Authorization: Bearer <token>`. Token kedaluwarsa 2 jam; restart server juga
@@ -294,9 +296,9 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
    disembunyikan di klien. Ini adalah bahan demo “UI bukan kontrol akses”.
 9. **Kontrol negatif audit-log** sengaja memakai `requireRole('admin', { enforce: true })`,
    sehingga 403 di kedua mode.
-10. **Tidak ada endpoint reset, upload, atau fitur yang mengeksekusi kode.**
-    Semua input divalidasi sebagai string dengan batas panjang; tidak ada
-    template engine, `eval`, atau akses filesystem dari input pengguna.
+10. **Tidak ada endpoint reset atau fitur yang mengeksekusi kode.** Satu-satunya
+    unggahan adalah dokumen teks (`.txt`, `.md`, `.csv`, `.log`) yang disimpan
+    di memori; tidak ada akses filesystem dari input pengguna.
 
 ---
 

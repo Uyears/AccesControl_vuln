@@ -51,6 +51,17 @@ export function AuthProvider({ children }) {
         setUser(data.user);
         return data.user;
       },
+      async register(payload) {
+        const data = await api('/api/auth/register', {
+          method: 'POST',
+          auth: false,
+          body: payload,
+        });
+        saveSession(data.token, data.user);
+        setToken(data.token);
+        setUser(data.user);
+        return data.user;
+      },
       logout() {
         clearSession();
         setToken('');

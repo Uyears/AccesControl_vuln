@@ -29,7 +29,7 @@ export default function Profile() {
       updateUser(data.user);
       setStatus({ type: 'ok', message: 'Profil berhasil diperbarui.' });
     } catch (err) {
-      setStatus({ type: 'error', message: err.message, status: err.status });
+      setStatus({ type: 'error', message: err.message });
     } finally {
       setBusy(false);
     }
@@ -50,14 +50,6 @@ export default function Profile() {
             <div>
               <dt>Nomor pelanggan</dt>
               <dd>#{user.id}</dd>
-            </div>
-            <div>
-              <dt>Role akun</dt>
-              <dd>
-                <span className={user.role === 'admin' ? 'badge badge-info' : 'badge badge-muted'}>
-                  {user.role}
-                </span>
-              </dd>
             </div>
             <div>
               <dt>Member sejak</dt>
@@ -83,9 +75,7 @@ export default function Profile() {
               <input type="tel" name="phone" value={form.phone} onChange={onChange} />
             </Field>
 
-            {status && status.type === 'error' && (
-              <ErrorNotice message={status.message} status={status.status} />
-            )}
+            {status && status.type === 'error' && <ErrorNotice message={status.message} />}
             {status && status.type === 'ok' && <div className="alert alert-ok">{status.message}</div>}
 
             <button type="submit" className="btn btn-primary" disabled={busy}>

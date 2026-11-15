@@ -75,7 +75,7 @@ export default function Addresses() {
       <PageHeader title="Alamat" subtitle="Alamat pengiriman yang tersimpan pada akun Anda." />
 
       {notice && <div className="alert alert-ok">{notice}</div>}
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       {!addresses && !error && <LoadingRow />}
 
@@ -139,7 +139,6 @@ export default function Addresses() {
               <>
                 <div className="card-head">
                   <h2>{address.label}</h2>
-                  <span className="badge badge-muted">#{address.id}</span>
                 </div>
                 <address className="address">
                   <strong>{address.recipient}</strong>

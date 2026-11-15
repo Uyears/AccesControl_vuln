@@ -98,7 +98,8 @@ test('server tanpa HOST mendengarkan di 127.0.0.1', { timeout: 20000 }, async ()
     const health = await fetch(`http://127.0.0.1:${port}/api/health`);
     assert.equal(health.status, 200);
     const body = await health.json();
-    assert.equal(body.secureMode, false);
+    assert.equal(body.status, 'ok');
+    assert.equal('secureMode' in body, false);
   } finally {
     await stop(child);
   }

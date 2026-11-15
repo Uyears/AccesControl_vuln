@@ -26,16 +26,13 @@ export function clearSession() {
 
 export class ApiError extends Error {
   constructor(status, payload) {
-    super((payload && payload.message) || `Permintaan gagal (${status}).`);
+    super((payload && payload.message) || 'Permintaan tidak dapat diproses.');
     this.status = status;
     this.payload = payload;
   }
 }
 
-/**
- * Semua panggilan API melewati helper ini supaya header Authorization selalu
- * terlihat konsisten di Burp: `Authorization: Bearer <token>`.
- */
+/* Helper tunggal untuk seluruh panggilan API aplikasi. */
 export async function api(path, options = {}) {
   const { method = 'GET', body, auth = true } = options;
   const headers = { Accept: 'application/json' };
@@ -69,6 +66,34 @@ export async function api(path, options = {}) {
   }
 
   return payload;
+}
+
+/* Unduh file yang dilindungi token tanpa membocorkan token di URL. */
+export async function downloadFile(path, fallbackName) {
+  const response = await fetch(path, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!response.ok) {
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch (err) {
+      payload = null;
+    }
+    throw new ApiError(response.status, payload);
+  }
+  const disposition = response.headers.get('Content-Disposition') || '';
+  const match = /filename="?([^";]+)"?/i.exec(disposition);
+  const name = match ? match[1] : fallbackName;
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = name;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
 }
 
 export function formatRupiah(value) {

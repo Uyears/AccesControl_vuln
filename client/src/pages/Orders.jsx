@@ -23,12 +23,9 @@ export default function Orders() {
 
   return (
     <>
-      <PageHeader
-        title="Pesanan"
-        subtitle="Riwayat pesanan yang tercatat pada akun Anda."
-      />
+      <PageHeader title="Pesanan" subtitle="Riwayat pesanan yang tercatat pada akun Anda." />
 
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       <section className="card">
         {!orders && !error && <LoadingRow />}
@@ -38,40 +35,42 @@ export default function Orders() {
         )}
 
         {orders && orders.length > 0 && (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Nomor pesanan</th>
-                <th>Tanggal</th>
-                <th>Status</th>
-                <th>Kurir</th>
-                <th className="align-right">Total</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <Link to={`/orders/${order.id}`} className="link">
-                      #{order.id}
-                    </Link>
-                  </td>
-                  <td>{formatDate(order.placedAt)}</td>
-                  <td>
-                    <StatusBadge status={order.status} />
-                  </td>
-                  <td>{order.courier}</td>
-                  <td className="align-right">{formatRupiah(order.total)}</td>
-                  <td className="align-right">
-                    <Link to={`/orders/${order.id}`} className="btn btn-small btn-secondary">
-                      Detail
-                    </Link>
-                  </td>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nomor pesanan</th>
+                  <th>Tanggal</th>
+                  <th>Status</th>
+                  <th>Kurir</th>
+                  <th className="align-right">Total</th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order.id}>
+                    <td>
+                      <Link to={`/orders/${order.id}`} className="link">
+                        #{order.id}
+                      </Link>
+                    </td>
+                    <td>{formatDate(order.placedAt)}</td>
+                    <td>
+                      <StatusBadge status={order.status} />
+                    </td>
+                    <td>{order.courier}</td>
+                    <td className="align-right">{formatRupiah(order.total)}</td>
+                    <td className="align-right">
+                      <Link to={`/orders/${order.id}`} className="btn btn-small btn-secondary">
+                        Detail
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </>

@@ -36,27 +36,27 @@ export default function Dashboard() {
         subtitle="Ringkasan akun Nusa Supply Anda."
       />
 
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       <div className="stat-grid">
         <div className="card stat">
           <span className="stat-label">Pesanan aktif</span>
-          <strong>{state.orders ? activeOrders.length : '—'}</strong>
+          <strong>{state.orders ? activeOrders.length : '-'}</strong>
           <span className="muted">Sedang diproses atau dikirim</span>
         </div>
         <div className="card stat">
           <span className="stat-label">Total pesanan</span>
-          <strong>{state.orders ? state.orders.length : '—'}</strong>
+          <strong>{state.orders ? state.orders.length : '-'}</strong>
           <span className="muted">Sejak akun dibuat</span>
         </div>
         <div className="card stat">
           <span className="stat-label">Alamat tersimpan</span>
-          <strong>{state.addresses ? state.addresses.length : '—'}</strong>
+          <strong>{state.addresses ? state.addresses.length : '-'}</strong>
           <span className="muted">Untuk pengiriman</span>
         </div>
         <div className="card stat">
           <span className="stat-label">Tiket terbuka</span>
-          <strong>{state.tickets ? openTickets.length : '—'}</strong>
+          <strong>{state.tickets ? openTickets.length : '-'}</strong>
           <span className="muted">Menunggu respons tim</span>
         </div>
       </div>
@@ -75,38 +75,40 @@ export default function Dashboard() {
         )}
 
         {state.orders && state.orders.length > 0 && (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Pesanan</th>
-                <th>Tanggal</th>
-                <th>Status</th>
-                <th className="align-right">Total</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {state.orders.slice(0, 4).map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <Link to={`/orders/${order.id}`} className="link">
-                      #{order.id}
-                    </Link>
-                  </td>
-                  <td>{formatDate(order.placedAt)}</td>
-                  <td>
-                    <StatusBadge status={order.status} />
-                  </td>
-                  <td className="align-right">{formatRupiah(order.total)}</td>
-                  <td className="align-right">
-                    <Link to={`/orders/${order.id}`} className="btn btn-small btn-secondary">
-                      Detail
-                    </Link>
-                  </td>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Pesanan</th>
+                  <th>Tanggal</th>
+                  <th>Status</th>
+                  <th className="align-right">Total</th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {state.orders.slice(0, 4).map((order) => (
+                  <tr key={order.id}>
+                    <td>
+                      <Link to={`/orders/${order.id}`} className="link">
+                        #{order.id}
+                      </Link>
+                    </td>
+                    <td>{formatDate(order.placedAt)}</td>
+                    <td>
+                      <StatusBadge status={order.status} />
+                    </td>
+                    <td className="align-right">{formatRupiah(order.total)}</td>
+                    <td className="align-right">
+                      <Link to={`/orders/${order.id}`} className="btn btn-small btn-secondary">
+                        Detail
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 

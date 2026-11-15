@@ -4,7 +4,11 @@
  * Satu-satunya tempat guard otorisasi.
  *
  * Aturan main:
- *  - `requireAuth` selalu aktif di kedua mode. Autentikasi bukan materi lab ini.
+ *  - `requireCookieRole` sengaja lemah di VULN: role dibaca dari cookie
+ *    `role` yang bisa diubah klien, bukan dari token. Di SECURE, cookie
+ *    diabaikan dan role diambil dari user di store.
+ *  - `refererGuard` di VULN hanya memeriksa path pada header Referer; di
+ *    SECURE ia menuntut role admin dari token.
  *  - `requireRole` dan `ownerOnly` menjadi no-op saat SECURE_MODE=false,
  *    KECUALI dipanggil dengan `{ enforce: true }` (dipakai endpoint kontrol
  *    negatif /api/admin/audit-log agar selalu 403 untuk non-admin).
@@ -52,6 +56,10 @@ function requireAuth(req, res, next) {
   const user = req.app.locals.db.findUserById(Number(claims.sub));
   if (!user) {
     return unauthorized(res, 'Sesi tidak lagi valid. Silakan login kembali.');
+  }
+
+  if (user.status && user.status !== 'active') {
+    return unauthorized(res, 'Akun ini sedang tidak aktif.');
   }
 
   req.user = user;
@@ -111,6 +119,75 @@ function ownerOnly(resolveOwnerId, options = {}) {
   };
 }
 
+function readCookie(req, name) {
+  const header = req.get('cookie');
+  if (typeof header !== 'string') return null;
+  for (const part of header.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() !== name) continue;
+    const raw = part.slice(index + 1).trim();
+    try {
+      return decodeURIComponent(raw);
+    } catch (err) {
+      return raw;
+    }
+  }
+  return null;
+}
+
+/**
+ * VULN[BFLA - client-controlled role]: endpoint seller/company settings
+ * mempercayai cookie `role` yang dapat diubah dari browser. Cookie bukan bukti
+ * identitas maupun otorisasi; ia hanya data yang dikirim klien.
+ * FIX: di SECURE, cookie diabaikan dan role diambil dari user hasil verifikasi
+ * token.
+ */
+function requireCookieRole(role, options = {}) {
+  return function cookieRoleGuard(req, res, next) {
+    if (!req.user) return unauthorized(res);
+
+    if (shouldEnforce(req, options)) {
+      if (req.user.role !== role) {
+        return forbidden(res, 'Role akun Anda tidak diizinkan untuk operasi ini.');
+      }
+      return next();
+    }
+
+    if (readCookie(req, 'role') !== role) {
+      return forbidden(res, 'Role sesi tidak diizinkan untuk operasi ini.');
+    }
+    return next();
+  };
+}
+
+/**
+ * VULN[BFLA - Referer-based authorization]: di VULN, akses laporan hanya dicek
+ * dari header Referer. Header ini dikendalikan klien dan tidak boleh menjadi
+ * kontrol akses.
+ * FIX: di SECURE, cek role admin dari token; Referer tidak dipakai.
+ */
+function refererGuard(options = {}) {
+  const requiredPath = options.requiredPath || '/admin';
+  const role = options.role || 'admin';
+  return function refererAccessGuard(req, res, next) {
+    if (!req.user) return unauthorized(res);
+
+    if (shouldEnforce(req, options)) {
+      if (req.user.role !== role) {
+        return forbidden(res, 'Role akun Anda tidak diizinkan untuk operasi ini.');
+      }
+      return next();
+    }
+
+    const referer = req.get('referer');
+    if (referer && !referer.includes(requiredPath)) {
+      return forbidden(res, 'Akses laporan hanya dari halaman operasional.');
+    }
+    return next();
+  };
+}
+
 /**
  * Whitelist field. Hanya key yang terdaftar yang disalin; sisanya dibuang.
  * Dipakai baik di mode SECURE maupun sebagai alat bantu di route.
@@ -131,6 +208,8 @@ module.exports = {
   isSecure,
   requireAuth,
   requireRole,
+  requireCookieRole,
+  refererGuard,
   ownerOnly,
   pickAllowedFields,
 };

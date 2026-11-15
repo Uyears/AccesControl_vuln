@@ -24,6 +24,37 @@ router.get('/:id', requireAuth, ownerOnly(resolveAddressOwner), (req, res) => {
   return res.json({ address });
 });
 
+router.post('/', requireAuth, (req, res) => {
+  const body = req.body;
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return badRequest(res, 'Body harus berupa objek JSON.');
+  }
+  const patch = pickAllowedFields(ADDRESS_FIELDS)(body);
+  for (const field of ['recipient', 'line1', 'city', 'postalCode']) {
+    if (typeof patch[field] !== 'string' || !patch[field].trim()) {
+      return badRequest(res, `Field ${field} wajib diisi.`);
+    }
+  }
+  for (const field of ADDRESS_FIELDS) {
+    if (field in patch) {
+      if (typeof patch[field] !== 'string' || patch[field].length > 200) {
+        return badRequest(res, `Field ${field} harus berupa string (maksimal 200 karakter).`);
+      }
+      patch[field] = patch[field].trim();
+    }
+  }
+  if (!patch.label) patch.label = 'Rumah';
+
+  const db = req.app.locals.db;
+  const address = db.createAddress(req.user.id, patch);
+  db.addAudit({
+    actor: req.user.username,
+    action: 'address.create',
+    detail: `Alamat ${address.id} dibuat.`,
+  });
+  return res.status(201).json({ address });
+});
+
 // VULN[idor / BOLA - write]: alamat milik siapa pun bisa diubah. Body memang
 // berisi `id` (klien mengirim objek utuh), tetapi yang menentukan target adalah
 // id di path — jadi mengubah id di body tidak menolong maupun menghalangi.

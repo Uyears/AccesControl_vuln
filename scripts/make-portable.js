@@ -239,6 +239,8 @@ function writeReadme() {
     '  bob   / Password123!   (customer)',
     '  dian  / Password123!   (customer)',
     '  admin / Admin!2024     (admin)',
+    '  toko.alpha / Seller123! (seller)',
+    '  toko.bravo / Seller123! (seller)',
     '',
     'RESET DATA',
     '  Hentikan server lalu jalankan ulang. Tidak ada endpoint reset.',

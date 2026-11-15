@@ -12,25 +12,25 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
+const STATUS = {
+  Dikirim: { label: 'Dikirim', tone: 'info' },
+  Diproses: { label: 'Diproses', tone: 'warn' },
+  Selesai: { label: 'Selesai', tone: 'ok' },
+  Dibatalkan: { label: 'Dibatalkan', tone: 'muted' },
+  open: { label: 'Terbuka', tone: 'warn' },
+  closed: { label: 'Selesai', tone: 'ok' },
+};
+
 export function StatusBadge({ status }) {
-  const map = {
-    Dikirim: 'info',
-    Diproses: 'warn',
-    Selesai: 'ok',
-    Dibatalkan: 'muted',
-    open: 'warn',
-    closed: 'ok',
-  };
-  const tone = map[status] || 'muted';
-  return <span className={`badge badge-${tone}`}>{status}</span>;
+  const item = STATUS[status] || { label: status, tone: 'muted' };
+  return <span className={`badge badge-${item.tone}`}>{item.label}</span>;
 }
 
-export function ErrorNotice({ message, status }) {
+export function ErrorNotice({ message }) {
   if (!message) return null;
   return (
-    <div className="alert alert-error">
-      <strong>Akses gagal{status ? ` (${status})` : ''}.</strong>
-      <span>{message}</span>
+    <div className="alert alert-error" role="alert">
+      {message}
     </div>
   );
 }
@@ -50,7 +50,7 @@ export function EmptyState({ title, description, actionLabel, actionTo }) {
 }
 
 export function LoadingRow({ label = 'Memuat data…' }) {
-  return <p className="muted">{label}</p>;
+  return <p className="loading-row muted">{label}</p>;
 }
 
 export function Field({ label, children, hint }) {

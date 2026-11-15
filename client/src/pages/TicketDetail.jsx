@@ -37,7 +37,7 @@ export default function TicketDetail({ params }) {
       />
 
       {!ticket && !error && <LoadingRow />}
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       {ticket && (
         <div className="two-col">

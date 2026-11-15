@@ -28,7 +28,7 @@ export default function Tickets() {
         subtitle="Tiket dukungan yang terkait dengan akun Anda."
       />
 
-      {error && <ErrorNotice message={error.message} status={error.status} />}
+      {error && <ErrorNotice message={error.message} />}
 
       <section className="card">
         {!tickets && !error && <LoadingRow />}
@@ -41,38 +41,42 @@ export default function Tickets() {
         )}
 
         {tickets && tickets.length > 0 && (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Tiket</th>
-                <th>Dibuat</th>
-                <th>Status</th>
-                <th>Balasan</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((ticket) => (
-                <tr key={ticket.id}>
-                  <td>
-                    <Link to={`/tickets/${ticket.id}`} className="link">
-                      {ticket.subject}
-                    </Link>
-                  </td>
-                  <td>{formatDate(ticket.createdAt)}</td>
-                  <td>
-                    <StatusBadge status={ticket.status} />
-                  </td>
-                  <td>{ticket.replies.length}x</td>
-                  <td className="align-right">
-                    <Link to={`/tickets/${ticket.id}`} className="btn btn-small btn-secondary">
-                      Buka
-                    </Link>
-                  </td>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Tiket</th>
+                  <th>Dibuat</th>
+                  <th>Status</th>
+                  <th>Balasan</th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {tickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td>
+                      <Link to={`/tickets/${ticket.id}`} className="link">
+                        {ticket.subject}
+                      </Link>
+                    </td>
+                    <td>{formatDate(ticket.createdAt)}</td>
+                    <td>
+                      <StatusBadge status={ticket.status} />
+                    </td>
+                    <td>
+                      {ticket.replies.length === 0 ? '-' : `${ticket.replies.length} balasan`}
+                    </td>
+                    <td className="align-right">
+                      <Link to={`/tickets/${ticket.id}`} className="btn btn-small btn-secondary">
+                        Buka
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 

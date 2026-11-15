@@ -12,7 +12,7 @@ export default defineConfig({
     // Express menyajikan folder ini secara statis.
     outDir: path.resolve(here, '..', 'server', 'public'),
     emptyOutDir: true,
-    // Materi recon: bundle sengaja tidak diminify dan menyertakan sourcemap.
+    // Bundle tetap terbaca untuk memudahkan pengembangan.
     minify: false,
     sourcemap: true,
     target: 'es2020',

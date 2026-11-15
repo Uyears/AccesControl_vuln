@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../auth';
-import { navigate } from '../router';
+import { Link, navigate } from '../router';
 
-export default function Login({ params }) {
+export default function Login() {
   const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +17,7 @@ export default function Login({ params }) {
       await login(username.trim(), password);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.message || 'Gagal masuk.');
+      setError(err.message || 'Tidak dapat masuk. Periksa kembali data Anda.');
     } finally {
       setBusy(false);
     }
@@ -25,34 +25,15 @@ export default function Login({ params }) {
 
   return (
     <div className="login-page">
-      <div className="lab-banner" role="alert">
-        Intentionally vulnerable training lab. Data fiktif. Jangan deploy ke publik.
-      </div>
-
-      <div className="login-grid">
-        <section className="login-brand">
-          <div className="brand brand-large">
-            <span className="brand-mark">NS</span>
-            <span className="brand-text">
-              Nusa Supply
-              <small>Perlengkapan kerja</small>
-            </span>
-          </div>
-          <h1>Kelola pesanan dan alamat pengiriman Anda.</h1>
-          <p>
-            Satu akun untuk melacak pesanan, menyimpan alamat, dan menghubungi tim dukungan Nusa
-            Supply.
-          </p>
-          <ul className="brand-list">
-            <li>Riwayat pesanan dan status pengiriman</li>
-            <li>Buku alamat untuk checkout lebih cepat</li>
-            <li>Tiket bantuan dengan tim operasional</li>
-          </ul>
-        </section>
+      <main className="login-panel">
+        <Link to="/katalog" className="brand login-brand" aria-label="Nusa Supply">
+          <span className="brand-mark">NS</span>
+          <span className="brand-name">Nusa Supply</span>
+        </Link>
 
         <section className="card login-card">
-          <h2>Masuk ke akun</h2>
-          <p className="muted">Gunakan kredensial yang diberikan fasilitator.</p>
+          <h1>Masuk</h1>
+          <p className="muted">Lanjutkan untuk melihat pesanan dan alamat pengiriman Anda.</p>
 
           <form onSubmit={onSubmit} className="form">
             <label className="field">
@@ -61,6 +42,7 @@ export default function Login({ params }) {
                 type="text"
                 name="username"
                 autoComplete="username"
+                placeholder="Masukkan username"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 required
@@ -73,24 +55,33 @@ export default function Login({ params }) {
                 type="password"
                 name="password"
                 autoComplete="current-password"
+                placeholder="Masukkan password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
               />
             </label>
 
-            {error && <div className="alert alert-error">{error}</div>}
+            {error && (
+              <div className="alert alert-error" role="alert">
+                {error}
+              </div>
+            )}
 
             <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
               {busy ? 'Memproses…' : 'Masuk'}
             </button>
           </form>
 
-          <p className="login-note muted">
-            Sesi disimpan di browser ini. Tutup browser untuk keluar sepenuhnya.
+          <p className="login-help">
+            Belum memiliki akun? <Link to="/register">Daftar sebagai pelanggan</Link>.
+            <br />
+            Lupa password? Hubungi layanan pelanggan di 021-555-0100.
           </p>
         </section>
-      </div>
+
+        <p className="login-copyright">© 2026 Nusa Supply</p>
+      </main>
     </div>
   );
 }

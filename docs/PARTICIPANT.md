@@ -29,8 +29,8 @@ Anda bekerja sebagai `alice` kecuali diminta lain.
 
 ### Recon: apa yang tidak terlihat di menu
 
-Aplikasi hanya menampilkan Ringkasan, Pesanan, Alamat, dan Bantuan. Cari tahu
-apa lagi yang bisa diakses.
+Aplikasi pelanggan hanya menampilkan Katalog, Ringkasan, Pesanan, Invoice, dan
+Bantuan. Cari tahu apa lagi yang bisa diakses.
 
 - Periksa `/openapi.json`.
 - Buka bundle JavaScript dan sourcemap di DevTools.

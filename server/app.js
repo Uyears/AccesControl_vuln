@@ -28,7 +28,7 @@ function createApp({ secure = false, port = 3000 } = {}) {
 
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Referrer-Policy', 'same-origin');
     next();
   });
 
@@ -37,8 +37,6 @@ function createApp({ secure = false, port = 3000 } = {}) {
   app.get('/api/health', (req, res) => {
     res.json({
       status: 'ok',
-      secureMode: app.locals.secure,
-      note: 'Intentionally vulnerable training lab. Data fiktif. Jangan deploy ke publik.',
     });
   });
 
@@ -51,6 +49,15 @@ function createApp({ secure = false, port = 3000 } = {}) {
   app.use('/api/addresses', require('./routes/addresses.routes'));
   app.use('/api/orders', require('./routes/orders.routes'));
   app.use('/api/tickets', require('./routes/tickets.routes'));
+  app.use('/api/support/tickets', require('./routes/tickets.routes'));
+  app.use('/api/products', require('./routes/products.routes'));
+  app.use('/api/seller', require('./routes/seller.routes'));
+  app.use('/api/cart', require('./routes/cart.routes'));
+  app.use('/api/invoices', require('./routes/invoices.routes'));
+  app.use('/api/documents', require('./routes/documents.routes'));
+  app.use('/api/company', require('./routes/company.routes'));
+  app.use('/api/employees', require('./routes/employees.routes'));
+  app.use('/api/articles', require('./routes/articles.routes'));
   app.use('/api/admin', require('./routes/admin.routes'));
 
   // Route API yang tidak dikenal tetap menjawab JSON 404, bukan index.html.
@@ -93,6 +100,12 @@ function createApp({ secure = false, port = 3000 } = {}) {
     }
     if (err && err.type === 'entity.too.large') {
       return sendError(res, 413, 'payload_too_large', 'Body permintaan terlalu besar.');
+    }
+    if (err && err.name === 'MulterError') {
+      return sendError(res, 400, 'bad_request', `Upload ditolak: ${err.message}.`);
+    }
+    if (err && typeof err.message === 'string' && err.message.startsWith('Hanya file teks')) {
+      return sendError(res, 400, 'bad_request', err.message);
     }
     console.error('[bac-lab] unhandled error:', err);
     return sendError(res, 500, 'server_error', 'Terjadi kesalahan pada server.');

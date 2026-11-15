@@ -16,7 +16,7 @@ ditunjukkan tanpa menggeneralisasi severity.
 ```bash
 npm install
 npm run build
-npm test              # 24 tes harus hijau sebelum seminar
+npm test              # 30 tes harus hijau sebelum seminar
 npm start             # VULN  -> http://127.0.0.1:3000
 ```
 
@@ -55,7 +55,7 @@ Restart server di antara demo yang mengubah data (alamat, role, hapus user).
 | `GET /api/tickets/:id` milik orang lain | **Demo 03** | Tugas 3 | 200 + `internalNotes` |
 | `PATCH /api/addresses/:id` milik orang lain | **Demo 03** | Tugas 3 | 200 + alamat berubah |
 | `PATCH /api/users/me` dengan `role` | **Demo 04** | Tugas 4 | 200, role jadi `admin` |
-| `GET /api/admin/users` tanpa role admin | **Demo 04** | Tugas 4 | 200 + 4 akun |
+| `GET /api/admin/users` tanpa role admin | **Demo 04** | Tugas 4 | 200 + 6 akun |
 | `DELETE /api/admin/users/:id` tanpa role admin | **Demo 04** | Tugas 4 | 204, akun hilang |
 | Semua di atas di SECURE | **Demo 04** | Tugas 5 | 403 / role diabaikan |
 | Menyusun PoC (expected vs actual) | **Demo 04** | Tugas 6 | template PoC terisi |
@@ -99,11 +99,11 @@ DevTools → Sources, source JSX asli bisa dibaca.
 ### 2.3 Panel admin hanya disembunyikan di UI
 
 1. Login sebagai `alice`.
-2. Perhatikan menu: hanya Ringkasan, Pesanan, Alamat, Bantuan.
+2. Perhatikan menu: Katalog, Ringkasan, Pesanan, Invoice, Bantuan; tidak ada menu Operasional.
 3. Buka `http://127.0.0.1:3000/admin` langsung.
 
 Expected: halaman ditolak.
-Actual (VULN): halaman “Operasional” tampil dan memuat daftar 4 akun.
+Actual (VULN): halaman “Operasional” tampil dan memuat daftar 6 akun.
 Point: **UI bukan kontrol akses**; route tetap ada di bundle.
 
 ### 2.4 Kontrol negatif
@@ -211,7 +211,7 @@ curl -i http://127.0.0.1:3000/api/admin/users \
 ```
 
 Expected: 403.
-Actual VULN: **200**, 4 akun lengkap dengan email, telepon, role.
+Actual VULN: **200**, 6 akun lengkap dengan email, telepon, role.
 
 ```bash
 curl -i -X DELETE http://127.0.0.1:3000/api/admin/users/2001 \
@@ -272,7 +272,7 @@ Di `http://127.0.0.1:3001`:
 | `GET /api/users/1002/profile` (admin) | 200 | 200 |
 
 Tunjukkan `server/authz.js` dan komentar `// VULN[...]` / `// FIX:` di route.
-Tutup dengan `npm test` — 24 tes mengunci perilaku ini.
+Tutup dengan `npm test` — 30 tes mengunci perilaku ini.
 
 ---
 
