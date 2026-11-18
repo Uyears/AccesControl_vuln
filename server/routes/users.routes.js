@@ -101,7 +101,13 @@ router.get('/profile', requireAuth, (req, res) => {
 router.get(
   '/:id/profile',
   requireAuth,
-  ownerOnly((req) => req.params.id, { allowAdmin: true }),
+  ownerOnly(
+    (req) => {
+      const user = req.app.locals.db.findUserById(req.params.id);
+      return user ? user.id : undefined;
+    },
+    { allowAdmin: true }
+  ),
   (req, res) => {
     const user = req.app.locals.db.findUserById(req.params.id);
     if (!user) return notFound(res, 'User tidak ditemukan.');

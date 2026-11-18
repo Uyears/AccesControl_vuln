@@ -294,6 +294,11 @@ test('VULN: customer mengekspor laporan dengan Referer palsu', async () => {
     assert.equal(res.status, 200);
     assert.match(res.text, /"order_id","customer","email"/);
     assert.match(res.text, /alice@example\.test/);
+
+    const noReferer = await api(lab.base, 'GET', '/api/admin/reports/export', {
+      token: alice,
+    });
+    assert.equal(noReferer.status, 403);
   });
 });
 

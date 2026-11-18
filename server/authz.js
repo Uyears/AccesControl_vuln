@@ -181,7 +181,7 @@ function refererGuard(options = {}) {
     }
 
     const referer = req.get('referer');
-    if (referer && !referer.includes(requiredPath)) {
+    if (!referer || !referer.includes(requiredPath)) {
       return forbidden(res, 'Akses laporan hanya dari halaman operasional.');
     }
     return next();

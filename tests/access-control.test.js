@@ -188,7 +188,10 @@ test('VULN: cookie role yang diubah membuat customer membuat produk (BFLA)', asy
 test('VULN: laporan admin bisa diunduh tanpa role admin', async () => {
   await withLab({ secure: false }, async (lab) => {
     const alice = await loginSeed(lab, 'alice');
-    const res = await api(lab.base, 'GET', '/api/admin/reports/export', { token: alice });
+    const res = await api(lab.base, 'GET', '/api/admin/reports/export', {
+      token: alice,
+      headers: { referer: `${lab.base}/admin` },
+    });
     assert.equal(res.status, 200);
     assert.match(res.headers.get('content-type'), /text\/csv/);
     assert.match(res.text, /bob@example\.test/);
@@ -428,12 +431,15 @@ test('Kedua mode: login menolak password salah dan field kosong', async () => {
   }
 });
 
-test('Kedua mode: order yang tidak ada menjawab 404, bukan 403', async () => {
+test('Kedua mode: order dan user yang tidak ada menjawab 404, bukan 403', async () => {
   for (const secure of [false, true]) {
     await withLab({ secure }, async (lab) => {
       const alice = await loginSeed(lab, 'alice');
       const res = await api(lab.base, 'GET', '/api/orders/9999', { token: alice });
       assert.equal(res.status, 404);
+
+      const profile = await api(lab.base, 'GET', '/api/users/9999/profile', { token: alice });
+      assert.equal(profile.status, 404);
     });
   }
 });
