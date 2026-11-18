@@ -3,7 +3,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { startApp, api, login } = require('./helpers');
+const { startApp, api, login, loginSeed } = require('./helpers');
 
 async function withLab(options, fn) {
   const lab = await startApp(options);
@@ -20,7 +20,7 @@ async function withLab(options, fn) {
 
 test('VULN: alice bisa membaca profil bob lewat path dan query (IDOR)', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const byPath = await api(lab.base, 'GET', '/api/users/1002/profile', { token: alice });
     assert.equal(byPath.status, 200);
@@ -39,7 +39,7 @@ test('VULN: alice bisa membaca profil bob lewat path dan query (IDOR)', async ()
 
 test('VULN: alice bisa membaca order bob beserta alamat pengirimannya', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const res = await api(lab.base, 'GET', '/api/orders/5002', { token: alice });
 
     assert.equal(res.status, 200);
@@ -52,7 +52,7 @@ test('VULN: alice bisa membaca order bob beserta alamat pengirimannya', async ()
 
 test('VULN: alice bisa membaca tiket bob lewat path utama dan alias', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const res = await api(lab.base, 'GET', '/api/tickets/4002', { token: alice });
 
     assert.equal(res.status, 200);
@@ -68,8 +68,8 @@ test('VULN: alice bisa membaca tiket bob lewat path utama dan alias', async () =
 
 test('VULN: alice bisa mengubah alamat bob (IDOR write)', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
-    const bob = await login(lab.base, 'bob', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
+    const bob = await loginSeed(lab, 'bob');
 
     const res = await api(lab.base, 'PATCH', '/api/addresses/3002', {
       token: alice,
@@ -89,7 +89,7 @@ test('VULN: alice bisa mengubah alamat bob (IDOR write)', async () => {
 
 test('VULN: alice menaikkan role sendiri lewat mass assignment lalu memakai endpoint admin', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const escalation = await api(lab.base, 'PATCH', '/api/users/me', {
       token: alice,
@@ -112,7 +112,7 @@ test('VULN: alice menaikkan role sendiri lewat mass assignment lalu memakai endp
 
 test('VULN: customer bisa memakai endpoint admin tanpa eskalasi role (BFLA)', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const list = await api(lab.base, 'GET', '/api/admin/users', { token: alice });
     assert.equal(list.status, 200);
@@ -129,7 +129,7 @@ test('VULN: customer bisa memakai endpoint admin tanpa eskalasi role (BFLA)', as
 
 test('VULN: dua langkah role change membuat customer menjadi admin', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const created = await api(lab.base, 'POST', '/api/admin/users/1001/role-change', {
       token: alice,
@@ -155,7 +155,7 @@ test('VULN: dua langkah role change membuat customer menjadi admin', async () =>
 
 test('VULN: invoice dan dokumen milik akun lain bisa dibaca, termasuk PDF', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const invoice = await api(lab.base, 'GET', '/api/invoices/7002', { token: alice });
     assert.equal(invoice.status, 200);
@@ -174,7 +174,7 @@ test('VULN: invoice dan dokumen milik akun lain bisa dibaca, termasuk PDF', asyn
 
 test('VULN: cookie role yang diubah membuat customer membuat produk (BFLA)', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const res = await api(lab.base, 'POST', '/api/products', {
       token: alice,
       headers: { cookie: 'role=seller' },
@@ -187,7 +187,7 @@ test('VULN: cookie role yang diubah membuat customer membuat produk (BFLA)', asy
 
 test('VULN: laporan admin bisa diunduh tanpa role admin', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const res = await api(lab.base, 'GET', '/api/admin/reports/export', { token: alice });
     assert.equal(res.status, 200);
     assert.match(res.headers.get('content-type'), /text\/csv/);
@@ -197,7 +197,7 @@ test('VULN: laporan admin bisa diunduh tanpa role admin', async () => {
 
 test('VULN: /api/admin/audit-log tetap 403 untuk customer (kontrol negatif)', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const res = await api(lab.base, 'GET', '/api/admin/audit-log', { token: alice });
 
     assert.equal(res.status, 403);
@@ -222,7 +222,7 @@ test('VULN: token tidak valid ditolak 401', async () => {
 
 test('VULN: validasi penghapusan user tetap berjalan', async () => {
   await withLab({ secure: false }, async (lab) => {
-    const admin = await login(lab.base, 'admin', 'Admin!2024');
+    const admin = await loginSeed(lab, 'admin');
 
     const self = await api(lab.base, 'DELETE', '/api/admin/users/9001', { token: admin });
     assert.equal(self.status, 400);
@@ -238,7 +238,7 @@ test('VULN: validasi penghapusan user tetap berjalan', async () => {
 
 test('SECURE: IDOR horizontal ditolak 403 (profil, order, tiket, alias)', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     for (const path of [
       '/api/users/1002/profile',
@@ -265,7 +265,7 @@ test('SECURE: IDOR horizontal ditolak 403 (profil, order, tiket, alias)', async 
 
 test('SECURE: IDOR write alamat ditolak 403, alamat sendiri tetap bisa diubah', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const other = await api(lab.base, 'PATCH', '/api/addresses/3002', {
       token: alice,
@@ -286,7 +286,7 @@ test('SECURE: IDOR write alamat ditolak 403, alamat sendiri tetap bisa diubah', 
 
 test('SECURE: field role diabaikan dan eskalasi tidak terjadi', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const res = await api(lab.base, 'PATCH', '/api/users/me', {
       token: alice,
@@ -302,7 +302,7 @@ test('SECURE: field role diabaikan dan eskalasi tidak terjadi', async () => {
     const deleted = await api(lab.base, 'DELETE', '/api/admin/users/2001', { token: alice });
     assert.equal(deleted.status, 403);
 
-    const admin = await login(lab.base, 'admin', 'Admin!2024');
+    const admin = await loginSeed(lab, 'admin');
     const check = await api(lab.base, 'GET', '/api/users/1002/profile', { token: admin });
     assert.equal(check.status, 200);
   });
@@ -310,7 +310,7 @@ test('SECURE: field role diabaikan dan eskalasi tidak terjadi', async () => {
 
 test('SECURE: role change dan cookie role tidak menaikkan hak akses', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
 
     const created = await api(lab.base, 'POST', '/api/admin/users/1001/role-change', {
       token: alice,
@@ -335,7 +335,7 @@ test('SECURE: role change dan cookie role tidak menaikkan hak akses', async () =
 
 test('SECURE: admin tetap dapat mengakses endpoint admin', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const admin = await login(lab.base, 'admin', 'Admin!2024');
+    const admin = await loginSeed(lab, 'admin');
 
     const users = await api(lab.base, 'GET', '/api/admin/users', { token: admin });
     assert.equal(users.status, 200);
@@ -356,12 +356,12 @@ test('SECURE: admin tetap dapat mengakses endpoint admin', async () => {
 
 test('SECURE: admin boleh membaca profil siapa pun, audit-log menolak customer', async () => {
   await withLab({ secure: true }, async (lab) => {
-    const admin = await login(lab.base, 'admin', 'Admin!2024');
+    const admin = await loginSeed(lab, 'admin');
     const profile = await api(lab.base, 'GET', '/api/users/1001/profile', { token: admin });
     assert.equal(profile.status, 200);
     assert.equal(profile.json.user.id, 1001);
 
-    const alice = await login(lab.base, 'alice', 'Password123!');
+    const alice = await loginSeed(lab, 'alice');
     const audit = await api(lab.base, 'GET', '/api/admin/audit-log', { token: alice });
     assert.equal(audit.status, 403);
   });
@@ -431,7 +431,7 @@ test('Kedua mode: login menolak password salah dan field kosong', async () => {
 test('Kedua mode: order yang tidak ada menjawab 404, bukan 403', async () => {
   for (const secure of [false, true]) {
     await withLab({ secure }, async (lab) => {
-      const alice = await login(lab.base, 'alice', 'Password123!');
+      const alice = await loginSeed(lab, 'alice');
       const res = await api(lab.base, 'GET', '/api/orders/9999', { token: alice });
       assert.equal(res.status, 404);
     });

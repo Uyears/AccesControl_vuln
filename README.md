@@ -82,16 +82,12 @@ node scripts/check-native-deps.js
 
 ---
 
-## 3. Akun demo
+## 3. Akun latihan
 
-| Username | Password | Role | ID | Catatan |
-|---|---|---|---|---|
-| `alice` | `Password123!` | customer | 1001 | order 5001, 5004; alamat 3001; tiket 4001, 4004 |
-| `bob` | `Password123!` | customer | 1002 | order 5002, 5005; alamat 3002; tiket 4002 |
-| `dian` | `Password123!` | customer | 2001 | akun korban demo penghapusan; order 5003, 5006; tiket 4003 |
-| `admin` | `Admin!2024` | admin | 9001 | Rani Kusnadi, staf operasional |
-| `toko.alpha` | `Seller123!` | seller | 8001 | Andi Wijaya, pemilik folder dokumen Alpha Works |
-| `toko.bravo` | `Seller123!` | seller | 8002 | Maya Sari, pemilik folder dokumen Bravo Office |
+Kredensial akun seed dibagikan langsung oleh fasilitator dan hanya dicatat di
+`docs/FACILITATOR.md` agar tidak ikut terbaca peserta dari UI, console, atau
+dokumentasi lain. Halaman **Daftar** tetap terbuka untuk membuat akun pelanggan
+baru; akun hasil registrasi selalu berperan `customer`.
 
 Token disimpan frontend di `localStorage` dan dikirim sebagai
 `Authorization: Bearer <token>`. Token kedaluwarsa 2 jam; restart server juga

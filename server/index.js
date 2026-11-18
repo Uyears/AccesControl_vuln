@@ -22,12 +22,7 @@ function printBanner(config, actualPort) {
   console.log(`  Listen  : ${config.host}:${actualPort}`);
   console.log(`  URL     : ${config.host === '127.0.0.1' ? url : `http://${config.host}:${actualPort}`}`);
   console.log('');
-  console.log('  Akun demo:');
-  console.log('    alice / Password123!   (customer)');
-  console.log('    bob   / Password123!   (customer)');
-  console.log('    dian  / Password123!   (customer)');
-  console.log('    admin / Admin!2024     (admin)');
-  console.log('');
+  console.log('  Akun latihan disiapkan oleh fasilitator (docs/FACILITATOR.md).');
   console.log('  Reset data: hentikan server (Ctrl+C) lalu jalankan ulang.');
   console.log(`  Sekarang: ${config.secure ? 'npm run start:secure' : 'npm start'}`);
   console.log(BANNER_LINE);

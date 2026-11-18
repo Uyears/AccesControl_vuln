@@ -68,7 +68,7 @@ router.get(
     return res.json({ user: toPublicUser(user) });
   }
 );
-// ownerOnly no-op saat SECURE_MODE=false -> alice membaca profil bob
+// ownerOnly no-op saat SECURE_MODE=false -> pelanggan A membaca profil pelanggan B
 ```
 
 SECURE — guard yang sama, sekarang mengeksekusi pengecekan:
@@ -82,7 +82,7 @@ router.get(
 );
 ```
 
-Hasil: `alice → GET /api/users/1002/profile` = **403**, bukan 200.
+Hasil: `pelanggan A → GET /api/users/1002/profile` = **403**, bukan 200.
 
 ---
 
@@ -132,8 +132,8 @@ router.get('/:id', requireAuth, ownerOnly(resolveTicketOwner), (req, res) => {
 });
 ```
 
-SECURE: guard aktif; tiket dian (4003) hanya bisa dibaca dian (atau admin
-lewat alur operasional yang memang berhak).
+SECURE: guard aktif; tiket 4003 hanya bisa dibaca pemiliknya (atau admin lewat
+alur operasional yang memang berhak).
 
 ```js
 router.get('/:id', requireAuth, ownerOnly(resolveTicketOwner), (req, res) => {
@@ -313,10 +313,10 @@ regression test-nya.
 
 | # | Endpoint | Akar masalah | Perbaikan | Verifikasi |
 |---|---|---|---|---|
-| 1 | `GET /users/:id/profile` | object-level check tidak dieksekusi | `ownerOnly(..., { allowAdmin: true })` aktif | alice → bob = 403 |
-| 2 | `GET /orders/:id` | tidak ada cek kepemilikan | `ownerOnly(resolveOrderOwner)` aktif | alice → 5002 = 403 |
-| 3 | `GET /tickets/:id` | tidak ada cek kepemilikan | `ownerOnly(resolveTicketOwner)` aktif | alice → 4003 = 403 |
-| 4 | `PATCH /addresses/:id` | object-level check tidak dieksekusi | `ownerOnly(resolveAddressOwner)` aktif | alice → 3002 = 403 |
+| 1 | `GET /users/:id/profile` | object-level check tidak dieksekusi | `ownerOnly(..., { allowAdmin: true })` aktif | pelanggan A → pelanggan B = 403 |
+| 2 | `GET /orders/:id` | tidak ada cek kepemilikan | `ownerOnly(resolveOrderOwner)` aktif | pelanggan A → order 5002 = 403 |
+| 3 | `GET /tickets/:id` | tidak ada cek kepemilikan | `ownerOnly(resolveTicketOwner)` aktif | pelanggan A → tiket 4003 = 403 |
+| 4 | `PATCH /addresses/:id` | object-level check tidak dieksekusi | `ownerOnly(resolveAddressOwner)` aktif | pelanggan A → alamat 3002 = 403 |
 | 5 | `PATCH /users/me` | semua field body disalin | allowlist `name/email/phone` | role tetap `customer` |
 | 6 | `GET /admin/users` | role guard no-op | `requireRole('admin')` aktif | customer = 403 |
 | 7 | `DELETE /admin/users/:id` | role guard no-op | `requireRole('admin')` aktif | customer = 403 |

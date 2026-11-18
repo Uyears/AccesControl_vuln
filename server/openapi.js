@@ -10,8 +10,8 @@ function buildOpenApi({ port = 3000 } = {}) {
   const userSummary = {
     type: 'object',
     properties: {
-      id: { type: 'integer', example: 1001 },
-      username: { type: 'string', example: 'alice' },
+      id: { type: 'integer' },
+      username: { type: 'string' },
       name: { type: 'string' },
       email: { type: 'string' },
       phone: { type: 'string' },
@@ -59,8 +59,8 @@ function buildOpenApi({ port = 3000 } = {}) {
                   type: 'object',
                   required: ['username', 'password'],
                   properties: {
-                    username: { type: 'string', example: 'alice' },
-                    password: { type: 'string', example: 'Password123!' },
+                    username: { type: 'string' },
+                    password: { type: 'string', format: 'password' },
                   },
                 },
               },

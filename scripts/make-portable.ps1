@@ -145,13 +145,10 @@ WINDOWS
 
   Tidak perlu Node.js, npm, atau hak administrator.
 
-AKUN DEMO
-  alice / Password123!   (customer)
-  bob   / Password123!   (customer)
-  dian  / Password123!   (customer)
-  admin / Admin!2024     (admin)
-  toko.alpha / Seller123! (seller)
-  toko.bravo / Seller123! (seller)
+AKUN LATIHAN
+  Kredensial akun dibagikan langsung oleh fasilitator dan tidak
+  disimpan di paket portable ini. Halaman Daftar terbuka untuk
+  membuat akun pelanggan baru bila diperlukan.
 
 RESET DATA
   Hentikan server lalu jalankan ulang. Tidak ada endpoint reset.

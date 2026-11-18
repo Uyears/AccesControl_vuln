@@ -13,15 +13,17 @@ aplikasi ini bisa dilewati — lalu menjelaskan buktinya.
 
 1. Fasilitator menjalankan server mode rentan.
 2. Buka `http://127.0.0.1:3000`.
-3. Login sebagai `alice` / `Password123!`.
+3. Daftar akun pelanggan baru lewat halaman **Daftar**, atau pakai akun yang
+   dibagikan fasilitator secara lisan. Jangan memakai kredensial bawaan yang
+   tidak diberikan kepada Anda.
 4. Buka Burp Suite dan pastikan request `fetch` ke `/api/...` terlihat.
    Jika tidak muncul: pakai browser bawaan Burp, atau di Firefox set
    `network.proxy.allow_hijacking_localhost = true`.
 5. Perhatikan header `Authorization: Bearer <token>` pada setiap request.
    Token juga tersimpan di `localStorage` browser.
 
-Akun yang tersedia: `alice`, `bob`, `dian` (customer), `admin` (staf).
-Anda bekerja sebagai `alice` kecuali diminta lain.
+Akun hasil registrasi selalu berperan `customer`. Akun staf dan penjual hanya
+tersedia bila fasilitator memberikannya.
 
 ---
 
@@ -42,27 +44,30 @@ path itu benar-benar bisa dipanggil.
 ### Membedakan tersembunyi dan rentan
 
 Ada satu endpoint admin yang sengaja **tidak** ikut melemah. Coba akses dengan
-token alice, lalu jelaskan mengapa hasilnya bukan temuan.
+token pelanggan Anda, lalu jelaskan mengapa hasilnya bukan temuan.
 
 Pertanyaan: apa perbedaan antara “endpoint berhasil ditemukan” dan “endpoint
 salah otorisasi”? Sertakan status code sebagai bukti.
 
-### Sebagai alice, buktikan kamu bisa melihat data bob
+### Buktikan kamu bisa melihat data pelanggan lain
 
 Gunakan Burp atau `curl` untuk:
 
-1. Membaca order milik bob.
-2. Membaca profil bob.
-3. Membaca tiket milik dian.
+1. Menemukan akun pelanggan lain dari endpoint yang tidak seharusnya Anda
+   akses. Catat bagaimana kamu mendapatkan ID-nya.
+2. Membaca order milik akun tersebut.
+3. Membaca profilnya.
+4. Membaca tiket support milik pelanggan lain.
 
 Untuk tiap percobaan, simpan request dan respons. Tunjukkan field mana yang
 seharusnya tidak Anda lihat. Perhatikan apakah ada data pengiriman, nomor
 telepon, atau catatan internal.
 
-### Sebagai alice, buktikan kamu bisa mengubah data orang lain
+### Buktikan kamu bisa mengubah data orang lain
 
-Ubah alamat pengiriman milik bob. Kirim body yang masuk akal (lihat field pada
-alamat Anda sendiri), lalu buktikan perubahan itu terbaca oleh aplikasi.
+Ubah alamat pengiriman milik pelanggan lain. Kirim body yang masuk akal (lihat
+field pada alamat Anda sendiri), lalu buktikan perubahan itu terbaca oleh
+aplikasi.
 
 Pertanyaan: field `id` ada di body request. Apakah mengubahnya mengubah target?
 Mengapa?
@@ -118,7 +123,7 @@ Jangan menyertakan token asli di laporan akhir; ganti dengan `<TOKEN>`.
 ```markdown
 ### <judul temuan>
 
-**Aktor:** alice (customer, id 1001)
+**Aktor:** pelanggan biasa (akun Anda)
 **Target:** <endpoint + id objek>
 **Mode:** VULNERABLE
 

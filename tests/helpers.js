@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('node:crypto');
 const http = require('node:http');
 const { createApp } = require('../server/app');
 
@@ -56,4 +57,14 @@ async function login(base, username, password) {
   return response.json.token;
 }
 
-module.exports = { startApp, api, login };
+// Login ke akun seed tanpa menyimpan kredensial default di repo: kata sandi
+// acak per test, lalu hash akun di store diganti sebelum login.
+async function loginSeed(lab, username) {
+  const user = lab.app.locals.db.findUserByUsername(username);
+  if (!user) throw new Error(`Akun seed ${username} tidak ditemukan.`);
+  const password = `T${crypto.randomBytes(18).toString('base64url')}a1!`;
+  user.passwordHash = await lab.app.locals.auth.hashPassword(password);
+  return login(lab.base, username, password);
+}
+
+module.exports = { startApp, api, login, loginSeed };
