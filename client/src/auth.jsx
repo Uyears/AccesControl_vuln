@@ -63,6 +63,7 @@ export function AuthProvider({ children }) {
         return data.user;
       },
       logout() {
+        document.cookie = 'role=; Max-Age=0; path=/';
         clearSession();
         setToken('');
         setUser(null);

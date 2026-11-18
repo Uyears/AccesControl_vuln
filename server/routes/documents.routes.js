@@ -60,7 +60,8 @@ router.get(
     const content = db.getDocumentContent(document.id);
     if (!content) return notFound(res, 'File dokumen tidak tersedia.');
 
-    res.setHeader('Content-Type', document.mime || 'application/octet-stream');
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.attachment(document.filename);
     return res.send(content);
   }

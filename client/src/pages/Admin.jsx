@@ -126,10 +126,14 @@ export default function Admin() {
                         <td>
                           <span
                             className={
-                              item.role === 'admin' ? 'badge badge-info' : 'badge badge-muted'
+                              item.role === 'customer' ? 'badge badge-muted' : 'badge badge-info'
                             }
                           >
-                            {item.role === 'admin' ? 'Staf' : 'Pelanggan'}
+                            {item.role === 'admin'
+                              ? 'Staf'
+                              : item.role === 'seller'
+                                ? 'Penjual'
+                                : 'Pelanggan'}
                           </span>
                         </td>
                         <td className="align-right">

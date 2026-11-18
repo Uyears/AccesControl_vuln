@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from '../router';
 import { api, formatRupiah } from '../api';
 import { ErrorNotice, LoadingRow, PageHeader } from '../components';
 
@@ -98,6 +99,21 @@ export default function Seller() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (!summary && error) {
+    return (
+      <>
+        <PageHeader title="Panel penjual" subtitle="Kelola katalog produk yang Anda jual di Nusa Supply." />
+        <section className="card empty-state">
+          <h3>Panel penjual tidak dapat dibuka</h3>
+          <p>{error.message}</p>
+          <Link className="btn btn-secondary" to="/">
+            Kembali ke ringkasan
+          </Link>
+        </section>
+      </>
+    );
   }
 
   return (

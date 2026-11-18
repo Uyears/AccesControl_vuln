@@ -65,7 +65,12 @@ export default function Tickets() {
                       <StatusBadge status={ticket.status} />
                     </td>
                     <td>
-                      {ticket.replies.length === 0 ? '-' : `${ticket.replies.length} balasan`}
+                      {(() => {
+                        const replies = ticket.messages.filter(
+                          (message) => !message.internal && message.authorRole === 'admin'
+                        );
+                        return replies.length === 0 ? '-' : `${replies.length} balasan`;
+                      })()}
                     </td>
                     <td className="align-right">
                       <Link to={`/tickets/${ticket.id}`} className="btn btn-small btn-secondary">

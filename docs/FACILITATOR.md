@@ -16,7 +16,7 @@ ditunjukkan tanpa menggeneralisasi severity.
 ```bash
 npm install
 npm run build
-npm test              # 30 tes harus hijau sebelum seminar
+npm test              # 50 tes harus hijau sebelum seminar
 npm start             # VULN  -> http://127.0.0.1:3000
 ```
 
@@ -272,7 +272,7 @@ Di `http://127.0.0.1:3001`:
 | `GET /api/users/1002/profile` (admin) | 200 | 200 |
 
 Tunjukkan `server/authz.js` dan komentar `// VULN[...]` / `// FIX:` di route.
-Tutup dengan `npm test` — 30 tes mengunci perilaku ini.
+Tutup dengan `npm test` — 50 tes mengunci perilaku ini.
 
 ---
 
@@ -329,3 +329,30 @@ permanen tanpa restart.
 - Menemukan endpoint tersembunyi adalah awal recon, bukan temuan.
 - Temuan yang layak = ada **aksi/data** yang seharusnya ditolak, dibuktikan
   dengan request dan respons, plus dampak konkret pada objek yang terlibat.
+
+---
+
+## 9. Permukaan tambahan di luar demo utama
+
+Lab ini punya beberapa modul lain yang memakai pola otorisasi sama. Gunakan
+sebagai latihan bebas atau jika peserta menyelesaikan demo utama lebih cepat.
+Semua perilaku di bawah dikunci oleh `tests/modules.test.js`.
+
+| Modul | Request (VULN) | Actual VULN | Actual SECURE | Dampak yang terlihat |
+|---|---|---|---|---|
+| Invoice partner | `GET /api/company/invoices` tanpa token | 200 + email pelanggan | 401 tanpa token; 403 customer | Data penagihan partner terbaca tanpa login |
+| Direktori staf | `GET /api/employees` tanpa token | 200 + email/telepon partner | 401 tanpa token; 403 customer | Kontak internal terbaca tanpa login |
+| Panel penjual | `GET /api/seller/summary` + `Cookie: role=seller` | 200 + produk partner | 403 | Cookie klien dianggap role |
+| Pengaturan admin | `PATCH /api/admin/settings` + `Cookie: role=admin` | 200, `supportEmail` berubah | 403 | Cookie klien mengubah konfigurasi |
+| Persetujuan role | `PATCH /api/admin/role-change-requests/1/approve` sebagai alice | 200, alice menjadi admin | 403; hanya admin yang bisa | Eskalasi hak akses dua langkah |
+| Checkout | `POST /api/cart/checkout` body `{"addressId":3002}` | 201, order alice memakai alamat bob | 403 | Alamat korban dipakai untuk pengiriman |
+| Ubah order | `PATCH /api/orders/5002` body `{"status":"Dikirim"}` | 200, order bob berubah | 403 | Status pesanan korban diubah |
+| Statistik admin | `GET /api/admin/stats` dan `/api/admin/orders` sebagai alice | 200 + data semua order | 403 | Ringkasan operasional dan data pelanggan terbaca |
+| Upload dokumen | `POST /api/documents` multipart `folderId=1` sebagai alice | 201, dokumen masuk folder partner | 403 | Menulis ke ruang kerja partner |
+| Unduh dokumen | `GET /api/documents/<id>/download` sebagai alice | 200 + isi file partner | 403 | Isi file partner terbaca |
+| Ekspor laporan | `GET /api/admin/reports/export` + `Referer: http://127.0.0.1:3000/admin` | 200 + CSV semua order | 403 tanpa Referer palsu | Header Referer dipercaya sebagai otorisasi |
+
+Catatan untuk fasilitator: empat baris terakhir sering memancing diskusi
+“apakah ini masih BAC?”. Jawab dengan pertanyaan yang sama seperti demo utama:
+objek atau fungsi apa yang seharusnya dilindungi, dan apakah request yang sama
+berhasil tanpa hak akses?

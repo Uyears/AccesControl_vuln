@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, formatRupiah } from '../api';
 import { useAuth } from '../auth';
 import { Link, navigate } from '../router';
+import ProductArt from '../ProductArt';
 import { ErrorNotice, LoadingRow, PageHeader } from '../components';
 
 export default function ProductDetail({ params }) {
@@ -64,9 +65,7 @@ export default function ProductDetail({ params }) {
         <Link to="/katalog">Katalog</Link> / {product.category}
       </p>
       <div className="product-detail">
-        <div className={`product-art product-art-large tone-${product.tone || 'slate'}`}>
-          <span>{product.sku}</span>
-        </div>
+        <ProductArt sku={product.sku} tone={product.tone} label={product.sku} large />
         <div className="product-info">
           <p className="eyebrow">{product.sellerName}</p>
           <h1>{product.name}</h1>

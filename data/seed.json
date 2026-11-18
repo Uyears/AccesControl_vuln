@@ -39,7 +39,7 @@
     {
       "id": 8001,
       "username": "toko.alpha",
-      "passwordHash": "$2b$10$Ds1THcqBE//BvYJL1EI5xO5VJmnjFaNot9NFdOfR4uRh7qKDs8Gp.",
+      "passwordHash": "$2b$10$JH1inw2kjvNDPKPp7yyP/e/IVJKntl6ekTLYataXIzsciyZVe/ebO",
       "role": "seller",
       "status": "active",
       "name": "Andi Wijaya",
@@ -51,7 +51,7 @@
     {
       "id": 8002,
       "username": "toko.bravo",
-      "passwordHash": "$2b$10$Ds1THcqBE//BvYJL1EI5xO5VJmnjFaNot9NFdOfR4uRh7qKDs8Gp.",
+      "passwordHash": "$2b$10$JH1inw2kjvNDPKPp7yyP/e/IVJKntl6ekTLYataXIzsciyZVe/ebO",
       "role": "seller",
       "status": "active",
       "name": "Maya Sari",

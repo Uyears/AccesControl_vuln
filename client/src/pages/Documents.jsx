@@ -98,13 +98,18 @@ export default function Documents() {
               ))}
             </select>
           </label>
-          <label className="field">
+          <label className="field file-field">
             <span>File teks (.txt, .md, .csv, .log)</span>
-            <input
-              type="file"
-              accept=".txt,.md,.csv,.log"
-              onChange={(event) => setFile(event.target.files && event.target.files[0])}
-            />
+            <span className="file-picker">
+              <input
+                className="file-input"
+                type="file"
+                accept=".txt,.md,.csv,.log"
+                onChange={(event) => setFile(event.target.files && event.target.files[0])}
+              />
+              <span className="btn btn-secondary btn-small">Pilih file</span>
+              <span className="file-name">{file ? file.name : 'Belum ada file dipilih'}</span>
+            </span>
           </label>
           <button type="submit" className="btn btn-primary" disabled={busy || !folderId}>
             {busy ? 'Mengunggah…' : 'Unggah'}

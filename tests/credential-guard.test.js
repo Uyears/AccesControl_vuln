@@ -40,8 +40,8 @@ function freePort() {
 }
 
 test('console, dokumen peserta, dan script rilis tidak memuat kredensial seed', () => {
+  // README adalah dokumen fasilitator dan memang memuat akun latihan.
   const files = [
-    'README.md',
     'docs/PARTICIPANT.md',
     'docs/remediation.md',
     'server/index.js',

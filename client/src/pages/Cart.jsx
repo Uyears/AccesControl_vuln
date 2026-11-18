@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, formatRupiah } from '../api';
 import { Link, navigate } from '../router';
 import { EmptyState, ErrorNotice, LoadingRow, PageHeader } from '../components';
+import ProductArt from '../ProductArt';
 
 export default function Cart() {
   const [cart, setCart] = useState(null);
@@ -91,7 +92,7 @@ export default function Cart() {
             <ul className="cart-list">
               {cart.items.map((item) => (
                 <li key={item.productId}>
-                  <div className={`cart-thumb tone-${item.tone || 'slate'}`} />
+                  <ProductArt sku={item.sku} tone={item.tone} compact />
                   <div className="cart-item-main">
                     <Link to={`/katalog/${item.productId}`} className="link">
                       {item.name}

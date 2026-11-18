@@ -32,6 +32,11 @@ function createApp({ secure = false, port = 3000 } = {}) {
     next();
   });
 
+  app.use('/api', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  });
+
   app.use(express.json({ limit: '100kb' }));
 
   app.get('/api/health', (req, res) => {

@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { api, formatRupiah } from '../api';
 import { Link } from '../router';
+import ProductArt from '../ProductArt';
 import { ErrorNotice, LoadingRow, PageHeader } from '../components';
 
 function ProductCard({ product }) {
   return (
     <Link to={`/katalog/${product.id}`} className="product-card">
-      <div className={`product-art tone-${product.tone || 'slate'}`}>
-        <span>{product.category}</span>
-      </div>
+      <ProductArt sku={product.sku} tone={product.tone} label={product.category} />
       <div className="product-body">
         <h3>{product.name}</h3>
         <p className="muted small">{product.description}</p>

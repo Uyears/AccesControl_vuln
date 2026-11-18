@@ -31,8 +31,8 @@ tersedia bila fasilitator memberikannya.
 
 ### Recon: apa yang tidak terlihat di menu
 
-Aplikasi pelanggan hanya menampilkan Katalog, Ringkasan, Pesanan, Invoice, dan
-Bantuan. Cari tahu apa lagi yang bisa diakses.
+Aplikasi pelanggan hanya menampilkan Katalog, Ringkasan, Pesanan, Invoice,
+Bantuan, dan Jurnal. Cari tahu apa lagi yang bisa diakses.
 
 - Periksa `/openapi.json`.
 - Buka bundle JavaScript dan sourcemap di DevTools.

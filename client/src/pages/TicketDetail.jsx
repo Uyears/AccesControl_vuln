@@ -24,6 +24,8 @@ export default function TicketDetail({ params }) {
     };
   }, [ticketId]);
 
+  const messages = ticket ? ticket.messages.filter((message) => !message.internal) : [];
+
   return (
     <>
       <PageHeader
@@ -48,26 +50,27 @@ export default function TicketDetail({ params }) {
             </div>
 
             <div className="thread">
-              <article className="thread-item thread-customer">
-                <header>
-                  <strong>Anda</strong>
-                  <span className="muted small">{formatDateTime(ticket.createdAt)}</span>
-                </header>
-                <p>{ticket.message}</p>
-              </article>
-
-              {ticket.replies.map((reply, index) => (
-                <article className="thread-item thread-support" key={index}>
+              {messages.map((message) => (
+                <article
+                  className={
+                    message.authorRole === 'admin'
+                      ? 'thread-item thread-support'
+                      : 'thread-item thread-customer'
+                  }
+                  key={message.id}
+                >
                   <header>
-                    <strong>Tim Nusa Supply</strong>
-                    <span className="muted small">{formatDateTime(reply.at)}</span>
+                    <strong>
+                      {message.authorRole === 'admin' ? 'Tim Nusa Supply' : message.authorName}
+                    </strong>
+                    <span className="muted small">{formatDateTime(message.at)}</span>
                   </header>
-                  <p>{reply.body}</p>
+                  <p>{message.body}</p>
                 </article>
               ))}
 
-              {ticket.replies.length === 0 && (
-                <p className="muted">Belum ada balasan. Tim dukungan akan segera merespons.</p>
+              {messages.length === 0 && (
+                <p className="muted">Belum ada pesan. Tim dukungan akan segera merespons.</p>
               )}
             </div>
           </section>

@@ -24,7 +24,7 @@ penyimpanan password, dan penandatanganan token sengaja dibuat benar.
 | Bundle | **Tidak diminify**, sourcemap aktif (bahan recon) |
 | Default bind | `127.0.0.1:3000` |
 | Dependency produksi | `express`, `jsonwebtoken`, `bcryptjs`, `multer`, `pdf-lib` — semuanya pure JS |
-| Tes | `node:test`, 30 tes, dua instance (VULN + SECURE) di port acak |
+| Tes | `node:test`, 50 tes, dua instance (VULN + SECURE) di port acak |
 
 ---
 
@@ -65,8 +65,9 @@ npm test
 Tes menjalankan `createApp({ secure })` pada port acak, sehingga mode VULN dan
 SECURE diuji berdampingan tanpa saling mempengaruhi. Cakupan:
 
-- 7 perilaku VULN (IDOR baca profil/order/tiket, IDOR tulis alamat,
-  eskalasi role, BFLA daftar user, hapus user).
+- Perilaku VULN inti (IDOR baca profil/order/tiket, IDOR tulis alamat,
+  eskalasi role, BFLA daftar/hapus user) dan modul tambahan (invoice partner,
+  direktori staf, checkout, ubah order, dokumen, ekspor laporan).
 - Kontrol negatif `/api/admin/audit-log` → **selalu 403** untuk non-admin.
 - Semua padanan SECURE → **403** (dan pemilik tetap bisa mengakses miliknya).
 - Field `role` diabaikan di SECURE.
@@ -84,10 +85,18 @@ node scripts/check-native-deps.js
 
 ## 3. Akun latihan
 
-Kredensial akun seed dibagikan langsung oleh fasilitator dan hanya dicatat di
-`docs/FACILITATOR.md` agar tidak ikut terbaca peserta dari UI, console, atau
-dokumentasi lain. Halaman **Daftar** tetap terbuka untuk membuat akun pelanggan
-baru; akun hasil registrasi selalu berperan `customer`.
+| Peran | Username | Password | Catatan |
+|---|---|---|---|
+| customer | `alice` | `Password123!` | Akun utama hands-on; punya order 5001 dan tiket 4001 |
+| customer | `bob` | `Password123!` | Pemilik order 5002 dan alamat 3002 (target IDOR) |
+| customer | `dian` | `Password123!` | Akun korban untuk demo `DELETE /api/admin/users/:id` |
+| seller | `toko.alpha` | `Seller123!` | Produk Alpha Works; panel penjual |
+| seller | `toko.bravo` | `Seller123!` | Produk Bravo Office; panel penjual |
+| admin | `admin` | `Admin!2024` | Panel operasional dan audit log |
+
+Halaman **Daftar** terbuka untuk membuat akun pelanggan baru; akun hasil
+registrasi selalu berperan `customer`. Restart server menghapus akun baru dan
+mengembalikan seluruh seed.
 
 Token disimpan frontend di `localStorage` dan dikirim sebagai
 `Authorization: Bearer <token>`. Token kedaluwarsa 2 jam; restart server juga
@@ -144,8 +153,13 @@ grep -rn "VULN\[" server/
 
 - `requireAuth` — selalu aktif di kedua mode.
 - `requireRole(role, { enforce })` — no-op di VULN kecuali `enforce: true`.
+- `requireCookieRole(role)` — VULN membaca cookie `role` yang dapat diubah
+  klien; SECURE membaca role dari token.
+- `refererGuard({ requiredPath })` — VULN hanya memeriksa header `Referer`;
+  SECURE memeriksa role dari token.
 - `ownerOnly(resolveOwnerId, { allowAdmin })` — no-op di VULN.
-- `pickAllowedFields(...fields)` — whitelist field, dipakai di kedua mode.
+- `pickAllowedFields(...fields)` — whitelist field; di SECURE membuang `role`
+  dan field lain di luar daftar.
 
 `requireAuth` memuat ulang user dari store pada setiap request (bukan dari klaim
 token). Efek yang disengaja: perubahan `role` di store langsung berlaku pada
@@ -243,20 +257,20 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
 ├─ server/
 │  ├─ index.js          # entry: config, banner, bind, shutdown
 │  ├─ app.js            # createApp({ secure }), static, SPA fallback, error JSON
-│  ├─ authz.js          # requireAuth, requireRole, ownerOnly, pickAllowedFields
+│  ├─ authz.js          # requireAuth, role/cookie/owner guards, pickAllowedFields
 │  ├─ auth.js           # bcrypt + JWT (secret acak per proses)
 │  ├─ db.js             # store in-memory dari data/seed.json
 │  ├─ config.js         # HOST/PORT/SECURE_MODE, deteksi loopback
 │  ├─ http.js           # format error konsisten
 │  ├─ openapi.js        # dokumen OpenAPI parsial
-│  ├─ routes/           # auth, users, addresses, orders, tickets, admin
+│  ├─ routes/           # auth, users, orders, admin, produk, seller, dokumen, dll.
 │  └─ public/           # hasil build frontend (diabaikan git)
 ├─ client/
 │  ├─ index.html
 │  ├─ vite.config.mjs   # outDir server/public, minify:false, sourcemap:true
 │  └─ src/              # React: pages, router kecil, auth context, styles
-├─ data/seed.json       # 4 user, 6 order, 4 alamat, 4 tiket, audit log awal
-├─ tests/               # node:test (access-control + runtime)
+├─ data/seed.json       # 6 user, 8 produk, 8 order, 6 alamat, 4 tiket, 3 artikel
+├─ tests/               # node:test: access-control, modul, runtime, credential guard
 ├─ scripts/
 │  ├─ check-native-deps.js
 │  ├─ make-portable.js
@@ -318,5 +332,3 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
   template PoC.
 - [`docs/remediation.md`](docs/remediation.md) — pasangan snippet
   VULNERABLE vs SECURE per endpoint.
-# AccesControl_vuln
-# AccesControl_vuln

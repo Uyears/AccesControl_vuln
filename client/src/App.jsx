@@ -26,8 +26,8 @@ const NAV_ITEMS = [
   { to: '/orders', label: 'Pesanan' },
   { to: '/invoices', label: 'Invoice' },
   { to: '/tickets', label: 'Bantuan' },
+  { to: '/jurnal', label: 'Jurnal' },
 ];
-
 const PUBLIC_NAV_ITEMS = [
   { to: '/katalog', label: 'Katalog' },
   { to: '/jurnal', label: 'Jurnal' },
@@ -88,7 +88,13 @@ function Header() {
                 <span className="avatar">{user.name ? user.name.charAt(0) : '?'}</span>
                 <span className="user-meta">
                   <strong>{user.name}</strong>
-                  <small>{user.role === 'admin' ? 'Staf operasional' : 'Pelanggan'}</small>
+                  <small>
+                    {user.role === 'admin'
+                      ? 'Staf operasional'
+                      : user.role === 'seller'
+                        ? 'Penjual'
+                        : 'Pelanggan'}
+                  </small>
                 </span>
               </Link>
               <button type="button" className="btn btn-ghost btn-small" onClick={logout}>
