@@ -7,6 +7,10 @@ export default function TicketDetail({ params }) {
   const ticketId = params.id;
   const [ticket, setTicket] = useState(null);
   const [error, setError] = useState(null);
+  const [reply, setReply] = useState('');
+  const [replyError, setReplyError] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -24,6 +28,29 @@ export default function TicketDetail({ params }) {
     };
   }, [ticketId]);
 
+
+  async function sendReply(event) {
+    event.preventDefault();
+    const body = reply.trim();
+    if (!body || sending) return;
+
+    setSending(true);
+    setReplyError(null);
+    setNotice('');
+    try {
+      const data = await api(`/api/tickets/${encodeURIComponent(ticketId)}/messages`, {
+        method: 'POST',
+        body: { body },
+      });
+      setTicket(data.ticket);
+      setReply('');
+      setNotice('Balasan terkirim.');
+    } catch (err) {
+      setReplyError(err);
+    } finally {
+      setSending(false);
+    }
+  }
   const messages = ticket ? ticket.messages.filter((message) => !message.internal) : [];
 
   return (
@@ -73,6 +100,27 @@ export default function TicketDetail({ params }) {
                 <p className="muted">Belum ada pesan. Tim dukungan akan segera merespons.</p>
               )}
             </div>
+
+            <form className="form" onSubmit={sendReply}>
+              <label className="field">
+                <span>Balas tiket</span>
+                <textarea
+                  rows={3}
+                  maxLength={2000}
+                  value={reply}
+                  onChange={(event) => setReply(event.target.value)}
+                  placeholder="Tulis balasan untuk tim dukungan…"
+                  disabled={sending}
+                />
+              </label>
+              {replyError && <ErrorNotice message={replyError.message} />}
+              {notice && <p className="alert alert-ok">{notice}</p>}
+              <div className="btn-row">
+                <button type="submit" className="btn btn-small" disabled={sending || !reply.trim()}>
+                  {sending ? 'Mengirim…' : 'Kirim balasan'}
+                </button>
+              </div>
+            </form>
           </section>
 
           <section className="card">

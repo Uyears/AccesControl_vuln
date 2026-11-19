@@ -68,6 +68,28 @@ export default function Admin() {
     }
   }
 
+  async function updateStatus(target, status) {
+    setBusyId(target.id);
+    setNotice('');
+    setError(null);
+    try {
+      await api(`/api/admin/users/${target.id}`, {
+        method: 'PATCH',
+        body: { status },
+      });
+      setNotice(
+        status === 'suspended'
+          ? `Akun ${target.username} ditangguhkan.`
+          : `Akun ${target.username} diaktifkan kembali.`
+      );
+      await loadUsers();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar" aria-label="Menu operasional">
@@ -113,6 +135,7 @@ export default function Admin() {
                       <th>Nama</th>
                       <th>Email</th>
                       <th>Peran</th>
+                      <th>Status</th>
                       <th />
                     </tr>
                   </thead>
@@ -136,17 +159,52 @@ export default function Admin() {
                                 : 'Pelanggan'}
                           </span>
                         </td>
+                        <td>
+                          <span
+                            className={
+                              item.status === 'suspended' ? 'badge badge-danger' : 'badge badge-ok'
+                            }
+                          >
+                            {item.status === 'suspended' ? 'Ditangguhkan' : 'Aktif'}
+                          </span>
+                        </td>
                         <td className="align-right">
                           {user.role === 'admin' && (
-                            <button
-                              type="button"
-                              className="btn btn-small btn-danger"
-                              disabled={busyId === item.id || item.id === user.id}
-                              onClick={() => removeUser(item)}
-                              title={item.id === user.id ? 'Tidak bisa menghapus akun sendiri' : ''}
-                            >
-                              {busyId === item.id ? 'Menghapus…' : 'Hapus'}
-                            </button>
+                            <div className="btn-row">
+                              <button
+                                type="button"
+                                className="btn btn-small btn-secondary"
+                                disabled={busyId === item.id || item.id === user.id}
+                                onClick={() =>
+                                  updateStatus(
+                                    item,
+                                    item.status === 'suspended' ? 'active' : 'suspended'
+                                  )
+                                }
+                                title={
+                                  item.id === user.id
+                                    ? 'Tidak bisa mengubah status akun sendiri'
+                                    : ''
+                                }
+                              >
+                                {busyId === item.id
+                                  ? 'Menyimpan…'
+                                  : item.status === 'suspended'
+                                    ? 'Aktifkan'
+                                    : 'Suspend'}
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-small btn-danger"
+                                disabled={busyId === item.id || item.id === user.id}
+                                onClick={() => removeUser(item)}
+                                title={
+                                  item.id === user.id ? 'Tidak bisa menghapus akun sendiri' : ''
+                                }
+                              >
+                                {busyId === item.id ? 'Menghapus…' : 'Hapus'}
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>

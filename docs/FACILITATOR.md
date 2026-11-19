@@ -39,15 +39,15 @@ tetap sama.
 
 Jumlah skenario di dokumen ini: **36**. Rinciannya:
 
-- **32 skenario** berupa request yang benar-benar berhasil dieksploitasi pada
+- **34 skenario** berupa request yang benar-benar berhasil dieksploitasi pada
   build ini.
-- **4 skenario** berupa ketiadaan endpoint persis seperti yang diminta
-  (riwayat transaksi per-user, balas tiket, ubah status user, method override).
-  Untuk keempatnya, dokumen tetap menunjukkan request pembuktian dan hasil
-  aktual, bukan mengarang endpoint.
+- **2 skenario** berupa ketiadaan endpoint/alur persis seperti yang diminta
+  (riwayat transaksi per-user dan method override). Untuk keduanya, dokumen
+  tetap menunjukkan request pembuktian dan hasil aktual, bukan mengarang
+  endpoint.
 
 Semua status dan body di bawah dicatat dari respons server lokal pada
-2026-11-18. Angka `count` dapat berubah jika Anda sudah membuat akun, order,
+2026-11-19. Angka `count` dapat berubah jika Anda sudah membuat akun, order,
 atau dokumen tambahan; gunakan nilai relatif dan ID dari respons.
 
 ---
@@ -883,16 +883,18 @@ Jika `404`, alias tidak terpasang di build ini; cek sourcemap, jangan mengarang.
 
 ---
 
-### D3 — Balas tiket: endpoint tidak ada
+### D3 — Balas tiket customer lain (IDOR write)
 
-**Demo:** 02 · **Hands-on:** recon negatif · **State:** tidak ada perubahan
+**Demo:** 03 · **Hands-on:** IDOR tulis · **State:** menambah pesan ke tiket korban
 
-**1. Setup.** Registrasi baru; token customer.
+**1. Setup.** Login dengan akun seed `alice` (ID `1001`) memakai kredensial dari
+README; token customer. Tiket korban adalah `4002` milik bob (`1002`).
 
-**2. UI.** Detail tiket tidak memiliki form balasan. UI hanya menampilkan
-pesan. Tidak ada tombol yang memicu POST ke tiket.
+**2. UI.** Login sebagai alice, buka **Tiket** (hanya berisi tiket alice),
+lalu ganti URL detail ke `/tickets/4002`. Halaman detail menampilkan form
+**Balas tiket**; form ini mengirim POST ke endpoint di bawah.
 
-**3. Burp.** Coba pola yang masuk akal:
+**3. Burp.** Ambil request balasan dari UI, atau susun manual:
 
 ```http
 POST /api/tickets/4002/messages HTTP/1.1
@@ -900,24 +902,26 @@ Host: 127.0.0.1:3000
 Authorization: Bearer <TOKEN_ATTACKER>
 Content-Type: application/json
 
-{"message":"Balasan audit"}
+{"body":"Balasan audit dari akun lain."}
 ```
 
-**4. Repeater.** Kirim request di atas. Coba juga
-`POST /api/tickets/4002/reply` dengan body yang sama.
+**4. Repeater.** Kirim request di atas. Ulangi dengan alias
+`/api/support/tickets/4002/messages`; keduanya memakai handler yang sama.
 
-**5. Expected.** Karena fitur tidak ada, `404` adalah hasil yang benar. Jangan
-mengharapkan `403`; tidak ada route untuk diotorisasi.
+**5. Expected.** `403` karena tiket bukan milik pemanggil.
 
-**6. Actual.** `404` dengan pesan `{"error":"not_found"}`.
+**6. Actual.** `201` dengan `message.authorId: 1001` dan
+`ticket.userId: 1002`. `ticket.updatedAt` ikut berubah. Field yang dipakai
+adalah `body`, bukan `message`.
 
-**7. Validasi.** Setelah POST, `GET /api/tickets/4002` tidak menunjukkan pesan
-baru. Ini membuktikan tidak ada state yang berubah, bukan hanya status 404.
+**7. Validasi.** Login bob, buka `GET /api/tickets/4002`; pesan baru muncul di
+thread. Sebagai admin, `GET /api/admin/audit-log` mencatat `ticket.reply`
+dengan aktor attacker.
 
-**8. Dampak/debugging.** Skenario “membalas tiket user lain” **tidak dapat
-dibuktikan pada build ini karena endpoint balas tiket tidak tersedia**. Jangan
-melaporkannya sebagai temuan. Jika Anda menambah endpoint di masa depan, uji
-IDOR dengan token attacker dan tiket 4002.
+**8. Dampak/debugging.** Attacker dapat menyisipkan konten ke thread dukungan
+korban dan mengubah konteks percakapan (misalnya menyamar sebagai instruksi
+atau tautan). Ini bukan eksekusi kode dan bukan pengambilalihan akun. Jika
+balasan `400`, periksa field `body` dan panjang maksimum 2000 karakter.
 
 ---
 
@@ -1095,16 +1099,18 @@ E3.
 
 ---
 
-### E5 — Ubah status user: endpoint tidak ada
+### E5 — Ubah status user tanpa cek role (BFLA)
 
-**Demo:** 02 · **Hands-on:** recon negatif · **State:** tidak ada perubahan
+**Demo:** 04 · **Hands-on:** BFLA tulis · **State:** menangguhkan akun korban
 
-**1. Setup.** Registrasi baru; token customer.
+**1. Setup.** Registrasi `auditor01` (customer); token aktif. Korban: bob
+(`1002`).
 
-**2. UI.** Panel admin tidak memiliki kontrol status untuk customer. Tidak ada
-form yang memicu request ini.
+**2. UI.** Panel admin punya kontrol **Suspend/Aktifkan**, tetapi hanya
+dirender untuk role admin. Customer tidak melihat tombol tersebut; endpoint
+tetap menerima request langsung.
 
-**3. Burp.** Coba:
+**3. Burp.** Kirim:
 
 ```http
 PATCH /api/admin/users/1002 HTTP/1.1
@@ -1115,18 +1121,25 @@ Content-Type: application/json
 {"status":"suspended"}
 ```
 
-**4. Repeater.** Kirim; coba juga `PATCH /api/admin/users/1002/status`.
+**4. Repeater.** Kirim. Coba juga `PATCH /api/admin/users/1002/status` untuk
+membandingkan route yang tidak ada.
 
-**5. Expected.** `404` karena route tidak ada.
+**5. Expected.** `403` karena pemanggil bukan admin.
 
-**6. Actual.** `404` `{"error":"not_found"}`.
+**6. Actual.** `200` dengan `user.status: "suspended"`. Route
+`/api/admin/users/1002/status` tidak ada dan menjawab `404`.
 
-**7. Validasi.** `GET /api/admin/users` (E1) menunjukkan status bob tetap
-`active`. Tidak ada perubahan state.
+**7. Validasi.** `GET /api/admin/users` (E1) menunjukkan status bob berubah.
+Token bob yang masih berlaku dipakai untuk `GET /api/orders/5002` → `401`
+(`requireAuth` menolak akun nonaktif). Login bob dengan kredensial README →
+`403` dan tidak mengembalikan token. Attacker tidak bisa menangguhkan akunnya
+sendiri (`400`), status di luar `active`/`suspended` ditolak (`400`), dan user
+yang tidak ada menjawab `404`.
 
-**8. Dampak/debugging.** Skenario “ubah status user” **tidak ada di build ini**.
-Jangan mengarang request berhasil. Role change (E3) adalah alur berbeda dan
-tidak mengubah `status`.
+**8. Dampak/debugging.** Attacker dapat mengunci akses akun pelanggan lain
+(lockout sementara) dan mengaktifkannya kembali. Tidak ada data yang dibaca
+atau dihapus, dan restart server mengembalikan status seed. Jangan menyebut
+ini sebagai pengambilalihan akun. Perbaikan: `requireRoleStrict('admin')`.
 
 ---
 
@@ -1151,20 +1164,23 @@ Content-Type: application/json
 {}
 ```
 
-**4. Repeater.** Coba juga `PUT`, `PATCH`, dan `DELETE` langsung ke
-`/api/admin/users/1002`.
+**4. Repeater.** Coba juga `PUT` dan `PATCH` langsung ke
+`/api/admin/users/1002`, serta `DELETE` langsung untuk membandingkan dengan
+skenario E2.
 
-**5. Expected.** `404`/`405`; tidak boleh ada bypass ke `DELETE`.
+**5. Expected.** Override `404`; `DELETE` langsung `403` (bukan bypass).
 
-**6. Actual.** Semua `404` `{"error":"not_found"}`. Tidak ada middleware
-override.
+**6. Actual.** Override `404` `{"error":"not_found"}` karena tidak ada route
+`POST /api/admin/users/:id` dan tidak ada middleware override. `DELETE`
+langsung tetap `204` karena E2 (BFLA), bukan karena header override.
 
-**7. Validasi.** `GET /api/admin/users` masih memuat bob; tidak ada
-penghapusan.
+**7. Validasi.** `GET /api/admin/users` masih memuat bob setelah request
+override; tidak ada penghapusan.
 
-**8. Dampak/debugging.** Tidak ada temuan. Ini contoh **false positive yang
-harus ditolak**: route yang tidak ada bukan bypass. Jika suatu saat middleware
-override ditambahkan, uji ulang dengan token customer dan pastikan `403`.
+**8. Dampak/debugging.** Tidak ada temuan pada uji override. Ini contoh
+**false positive yang harus ditolak**: route yang tidak ada bukan bypass, dan
+keberhasilan `DELETE` langsung harus dilaporkan sebagai BFLA (E2), bukan
+sebagai method override.
 
 ---
 
@@ -1895,9 +1911,12 @@ Dokumentasikan ini agar peserta tidak salah menyebut false positive.
 | `GET /api/articles` | Daftar artikel publik tanpa profil internal | Bukan kebocoran |
 | `GET /api/admin/audit-log` | Selalu 403 untuk non-admin | Kontrol negatif |
 | `GET /api/health` | Status server tanpa data sensitif | Bukan kebocoran |
-| `POST /api/tickets/:id/messages` | Tidak ada route | Bukan temuan |
-| `PATCH /api/admin/users/:id` | Tidak ada route | Bukan temuan |
 | `POST /api/admin/users/:id` + override | Tidak ada route/override | Bukan temuan |
+
+`/openapi.json` kini memuat inventaris lengkap route dan method. Menemukan
+endpoint dari dokumen itu **bukan** bukti kerentanan: D3, E5, dan E2 harus
+dibuktikan dengan request, sedangkan `/api/admin/audit-log` tetap kontrol
+negatif.
 
 Endpoint tersembunyi yang ditemukan tetapi tidak rentan juga merupakan hasil
 recon yang berguna. Jangan memaksakan IDOR pada endpoint yang memfilter
@@ -1950,12 +1969,12 @@ baru `auditor01` (customer) kecuali disebut lain:
 | C1/C2 | invoice JSON dan PDF 7002 `200`; PDF memuat bob |
 | C3 | `/api/company/invoices` tanpa token `200` |
 | D1/D2 | tiket 4002 dan alias `200`, termasuk `internalNotes` |
-| D3 | POST balasan tiket `404`; tidak ada state baru |
+| D3 | balasan tiket 4002 `201`; `authorId` 1001; bob melihat pesan baru |
 | E1/E2 | daftar 7 user `200`; hapus dian `204`; sisa 6 |
 | E3 | request role `201`; approve sendiri `200`; role admin |
 | E4 | daftar role request `200` |
-| E5 | PATCH status user `404` |
-| E6 | POST + override `404` |
+| E5 | `PATCH` status bob `200`; token bob `401`; login bob `403` |
+| E6 | POST + override `404`; bob tetap ada |
 | F1/F2 | stats `200`; semua order + email/telepon `200` |
 | F3 | `/admin` `200`; API users `200` untuk customer |
 | F4 | tanpa Referer `403`; dengan Referer `/admin` `200` CSV |
@@ -2034,6 +2053,10 @@ Perbaikan utama ada di `server/authz.js`:
   `role` tidak pernah masuk patch.
 - Endpoint admin (`users`, `orders`, `stats`, `reports/export`, role-change)
   harus memakai `requireRoleStrict('admin')`.
+- `POST /api/tickets/:id/messages` harus memakai `ownerOnly` yang sama dengan
+  pembacaan tiket.
+- `PATCH /api/admin/users/:id` harus memakai `requireRoleStrict('admin')` dan
+  tetap menolak perubahan status akun sendiri.
 - `POST /api/documents` harus memvalidasi `folder.ownerId === req.user.id`.
 - Checkout harus memvalidasi `address.userId === req.user.id`.
 - `/api/employees` dan `/api/company/invoices` harus memakai `requireAuth` +

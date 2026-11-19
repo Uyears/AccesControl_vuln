@@ -120,11 +120,13 @@ Semua guard otorisasi ada di `server/authz.js` dan sengaja no-op kecuali
 | `GET /api/orders/:id` | order siapa pun beserta alamat | 403 kecuali pemilik |
 | `PATCH /api/orders/:id` | status order siapa pun bisa diubah | 403 kecuali pemilik/admin |
 | `GET /api/tickets/:id` | tiket siapa pun, termasuk `internalNotes` | 403 kecuali pemilik |
+| `POST /api/tickets/:id/messages` | balasan bisa ditulis ke tiket siapa pun | 403 kecuali pemilik |
 | `GET /api/addresses/:id` | alamat siapa pun | 403 kecuali pemilik |
 | `PATCH /api/addresses/:id` | alamat siapa pun bisa diubah | 403 kecuali pemilik |
 | `PATCH /api/users/me` | `role` diterima (mass assignment) | allowlist `name/email/phone` |
 | `GET /api/admin/users` | tanpa cek role (BFLA) | 403 untuk non-admin |
 | `DELETE /api/admin/users/:id` | tanpa cek role (BFLA) | 403 untuk non-admin |
+| `PATCH /api/admin/users/:id` | status akun siapa pun bisa diubah (BFLA) | 403 untuk non-admin |
 | `POST /api/admin/users/:id/role-change` | customer boleh mengajukan | 403 untuk non-admin |
 | `PATCH /api/admin/role-change-requests/:id/approve` | customer menyetujui miliknya sendiri | 403 untuk non-admin |
 | `GET/PATCH /api/admin/settings` | hanya cek cookie `role=admin` | role dari token |
@@ -177,8 +179,9 @@ dibuktikan tanpa login ulang.
 
 ## 6. Bahan recon yang tersedia
 
-- `/openapi.json` — dokumen **parsial**, memuat sebagian endpoint termasuk
-  `/api/admin/users`, `/api/admin/users/{id}`, dan `/api/admin/audit-log`.
+- `/openapi.json` — inventaris **lengkap** seluruh route dan method API, termasuk
+  endpoint yang tidak ditautkan dari UI seperti `/api/admin/*`,
+  `/api/company/invoices`, dan `/api/employees`.
 - Bundle frontend `server/public/assets/*.js` — **tidak diminify**, berisi
   halaman/panel admin dan path API.
 - `server/public/assets/*.js.map` — sourcemap aktif; source asli bisa dipulihkan.

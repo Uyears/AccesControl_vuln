@@ -327,7 +327,7 @@ lewat recon tetapi tidak menghasilkan temuan.
 
 ---
 
-## 9. Otorisasi dari input klien yang salah
+## 9. Pola otorisasi yang salah
 
 ### 9.1 Cookie `role` — `server/authz.js`
 
@@ -381,6 +381,73 @@ function refererGuard(options = {}) {
 DIPERBAIKI: hapus `refererGuard` dari route dan pakai `requireRoleStrict('admin')`.
 `Referer` dapat dipalsukan lewat Burp/curl dan tidak boleh menjadi kontrol akses.
 
+### 9.3 `POST /api/tickets/:id/messages` — IDOR tulis
+
+VULNERABLE:
+
+```js
+router.post(
+  '/:id/messages',
+  requireAuth,
+  ownerOnly(resolveTicketOwner), // no-op di lab
+  (req, res) => {
+    const ticket = req.app.locals.db.findTicket(req.params.id);
+    if (!ticket) return notFound(res, 'Tiket tidak ditemukan.');
+    const message = req.app.locals.db.addTicketMessage(ticket.id, {
+      authorId: req.user.id,
+      body: req.body.body,
+      internal: false,
+    });
+    return res.status(201).json({ message, ticket });
+  }
+);
+```
+
+DIPERBAIKI: aktifkan `ownerOnly(resolveTicketOwner)` seperti pada D1. Pemilik
+tiket tetap `201`; customer lain `403`. Validasi `body` (string, tidak kosong,
+maksimum 2000 karakter) tetap dilakukan setelah otorisasi.
+
+### 9.4 `PATCH /api/admin/users/:id` — BFLA tulis
+
+VULNERABLE:
+
+```js
+router.patch('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
+  // requireRole masih no-op
+  const updated = req.app.locals.db.updateUser(req.params.id, {
+    status: req.body.status,
+  });
+  return res.json({ user: toPublicUser(updated) });
+});
+```
+
+DIPERBAIKI:
+
+```js
+router.patch(
+  '/users/:id',
+  requireAuth,
+  requireRoleStrict('admin'),
+  (req, res) => {
+    const target = req.app.locals.db.findUserById(req.params.id);
+    if (!target) return notFound(res, 'User tidak ditemukan.');
+    if (target.id === req.user.id) {
+      return badRequest(res, 'Tidak bisa mengubah status sendiri.');
+    }
+    if (!['active', 'suspended'].includes(req.body.status)) {
+      return badRequest(res, 'Status tidak valid.');
+    }
+    const updated = req.app.locals.db.updateUser(target.id, {
+      status: req.body.status,
+    });
+    return res.json({ user: toPublicUser(updated) });
+  }
+);
+```
+
+Non-admin harus `403`. `requireAuth` juga harus menolak token milik akun yang
+sudah `suspended` dengan `401`; login akun tersebut ditolak `403`.
+
 ---
 
 ## 10. Modul tambahan
@@ -397,9 +464,21 @@ DIPERBAIKI: hapus `refererGuard` dari route dan pakai `requireRoleStrict('admin'
 | `GET /api/seller/*`, `POST/PATCH/DELETE /api/products` | gunakan `requireRole('seller')` dari token |
 | `GET /api/articles/:slug` | jangan sertakan `authorProfile` internal pada respons publik |
 
+Catatan: `POST /api/admin/users/:id` dengan `X-HTTP-Method-Override: DELETE`
+tetap `404` karena server tidak memiliki middleware override. Ini bukan bypass.
+Keberhasilan `DELETE` langsung pada route `DELETE /api/admin/users/:id` adalah
+BFLA (bagian 7), bukan efek header tersebut.
+
+`/openapi.json` adalah inventaris lengkap route dan method untuk recon. Dokumen
+itu tidak memberi otorisasi dan tidak membuktikan kerentanan; setiap endpoint
+tetap harus diuji dengan token dan objek nyata.
+
 ---
 
 ## 11. Cara memverifikasi perbaikan
+
+Catatan: setelah guard diperbaiki, jangan mengubah respons `404` untuk resource
+yang tidak ada menjadi `403`. Kepemilikan dicek pada resource yang ada.
 
 1. Terapkan guard di `server/authz.js` (bukan hanya di route).
 2. Ganti setiap pemakaian guard no-op dengan guard yang mengeksekusi cek.

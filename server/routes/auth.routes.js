@@ -69,6 +69,10 @@ router.post('/login', async (req, res, next) => {
       return unauthorized(res, 'Username atau password salah.');
     }
 
+    if (user.status && user.status !== 'active') {
+      return forbidden(res, 'Akun ini sedang tidak aktif. Hubungi dukungan.');
+    }
+
     const token = auth.signToken(user);
     db.addAudit({
       actor: user.username,

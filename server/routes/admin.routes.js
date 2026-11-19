@@ -46,6 +46,32 @@ router.delete('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
   return res.status(204).end();
 });
 
+// VULN[BFLA]: status akun siapa pun bisa diubah tanpa pemeriksaan role. UI
+// hanya menyembunyikan kontrolnya; endpoint tetap menerima token customer.
+// FIX: requireRoleStrict('admin').
+router.patch('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
+  const db = req.app.locals.db;
+  const target = db.findUserById(req.params.id);
+  if (!target) return notFound(res, 'User tidak ditemukan.');
+
+  if (target.id === req.user.id) {
+    return badRequest(res, 'Status akun yang sedang dipakai tidak bisa diubah dari panel ini.');
+  }
+
+  const status = req.body && req.body.status;
+  if (status !== 'active' && status !== 'suspended') {
+    return badRequest(res, 'Field status harus "active" atau "suspended".');
+  }
+
+  const updated = db.updateUser(target.id, { status });
+  db.addAudit({
+    actor: req.user.username,
+    action: 'user.status',
+    detail: `Status user ${target.id} (${target.username}) menjadi ${status}.`,
+  });
+  return res.json({ user: toPublicUser(updated) });
+});
+
 // VULN[BFLA - missing function-level authorization]: customer boleh membuat
 // permintaan perubahan role untuk dirinya sendiri (atau akun lain). Tidak ada
 // pemeriksaan role pada langkah ini.
