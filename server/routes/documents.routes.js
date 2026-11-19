@@ -3,8 +3,8 @@
 const path = require('node:path');
 const express = require('express');
 const multer = require('multer');
-const { requireAuth, ownerOnly, isSecure } = require('../authz');
-const { badRequest, forbidden, notFound } = require('../http');
+const { requireAuth, ownerOnly } = require('../authz');
+const { badRequest, notFound } = require('../http');
 const { toDocument } = require('../db');
 
 const router = express.Router();
@@ -77,9 +77,6 @@ router.post('/', requireAuth, upload.single('file'), (req, res) => {
 
   // VULN[BOLA/IDOR - write]: upload ke folder milik partner lain diizinkan.
   // FIX: folder harus milik user yang terautentikasi.
-  if (isSecure(req) && folder.ownerId !== req.user.id) {
-    return forbidden(res, 'Folder dokumen bukan milik akun Anda.');
-  }
 
   const extension = path.extname(req.file.originalname).toLowerCase();
   const document = db.createDocument({

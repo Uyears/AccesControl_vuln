@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # Menjalankan lab dengan Node.js yang terpasang di sistem (macOS/Linux).
-#   ./start.sh            -> mode VULNERABLE
-#   ./start.sh --secure   -> mode SECURE
 set -euo pipefail
 
 cd "$(dirname "$0")"
@@ -12,16 +10,25 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 
 if [ ! -f server/public/index.html ]; then
-  echo "[bac-lab] Frontend belum dibangun. Menjalankan npm run build..."
   if ! command -v npm >/dev/null 2>&1; then
     echo "npm tidak ditemukan; tidak bisa membangun frontend." >&2
     exit 1
   fi
+
+  log_file=$(mktemp)
+  trap 'rm -f "$log_file"' EXIT
+
   if [ ! -d node_modules ]; then
-    echo "[bac-lab] Memasang dependency..."
-    npm install
+    if ! npm install --silent >"$log_file" 2>&1; then
+      cat "$log_file" >&2
+      exit 1
+    fi
   fi
-  npm run build
+
+  if ! npm run build >"$log_file" 2>&1; then
+    cat "$log_file" >&2
+    exit 1
+  fi
 fi
 
-exec node server/index.js "$@"
+exec node server/index.js

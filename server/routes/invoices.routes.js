@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const { requireAuth, ownerOnly, requireRole, isSecure } = require('../authz');
-const { forbidden, notFound } = require('../http');
+const { requireAuth, ownerOnly } = require('../authz');
+const { notFound } = require('../http');
 const { toPublicUser } = require('../db');
 
 const router = express.Router();

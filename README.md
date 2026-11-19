@@ -7,8 +7,13 @@ Aplikasi toko online kecil yang **sengaja rentan** untuk seminar
 
 Semua data fiktif dan disimpan di memori. Aplikasi hanya untuk dijalankan di laptop
 peserta (`127.0.0.1`), bukan untuk di-hosting. Satu-satunya kelas kelemahan yang
-ditanam adalah **otorisasi** (IDOR/BOLA, BFLA, mass assignment). Autentikasi,
-penyimpanan password, dan penandatanganan token sengaja dibuat benar.
+ditanam adalah **otorisasi** (IDOR/BOLA, BFLA, mass assignment, dan kontrol akses
+yang bergantung pada input klien). Autentikasi, penyimpanan password, dan
+penandatanganan token sengaja dibuat benar.
+
+Lab ini sengaja hanya punya **perilaku rentan**. Tidak ada flag runtime untuk
+mengaktifkan perilaku aman. Perbaikan dipelajari lewat komentar `// FIX:`,
+`docs/remediation.md`, dan tes yang mengunci perilaku rentan.
 
 ---
 
@@ -24,7 +29,7 @@ penyimpanan password, dan penandatanganan token sengaja dibuat benar.
 | Bundle | **Tidak diminify**, sourcemap aktif (bahan recon) |
 | Default bind | `127.0.0.1:3000` |
 | Dependency produksi | `express`, `jsonwebtoken`, `bcryptjs`, `multer`, `pdf-lib` — semuanya pure JS |
-| Tes | `node:test`, 50 tes, dua instance (VULN + SECURE) di port acak |
+| Tes | `node:test`, 30 tes, server di port acak |
 
 ---
 
@@ -35,15 +40,7 @@ Prasyarat: **Node.js 18.17+** (diuji pada Node 24.22) dan npm.
 ```bash
 npm install
 npm run build      # build frontend ke server/public
-npm start          # mode rentan  -> http://127.0.0.1:3000
-```
-
-Mode aman (perilaku yang benar, untuk remediation):
-
-```bash
-npm run start:secure
-# atau: node server/index.js --secure
-# atau: SECURE_MODE=true npm start
+npm start          # -> http://127.0.0.1:3000
 ```
 
 Buka browser ke <http://127.0.0.1:3000>. Jika port terpakai:
@@ -62,15 +59,13 @@ npm run dev:server
 npm test
 ```
 
-Tes menjalankan `createApp({ secure })` pada port acak, sehingga mode VULN dan
-SECURE diuji berdampingan tanpa saling mempengaruhi. Cakupan:
+Tes menjalankan `createApp()` pada port acak. Cakupan:
 
-- Perilaku VULN inti (IDOR baca profil/order/tiket, IDOR tulis alamat,
-  eskalasi role, BFLA daftar/hapus user) dan modul tambahan (invoice partner,
-  direktori staf, checkout, ubah order, dokumen, ekspor laporan).
+- IDOR baca profil/order/tiket, IDOR tulis alamat, eskalasi role lewat mass
+  assignment, dan BFLA daftar/hapus user.
+- Modul tambahan: invoice partner, direktori staf, checkout, ubah order,
+  dokumen, cookie role, dan ekspor laporan berbasis `Referer`.
 - Kontrol negatif `/api/admin/audit-log` → **selalu 403** untuk non-admin.
-- Semua padanan SECURE → **403** (dan pemilik tetap bisa mengakses miliknya).
-- Field `role` diabaikan di SECURE.
 - 401 tanpa token / token rusak, 404 untuk resource tidak ada.
 - Default bind `127.0.0.1`, peringatan keras untuk `HOST` non-loopback.
 - Dependency produksi bebas native addon.
@@ -112,35 +107,48 @@ Seed awal dimuat dari `data/seed.json` setiap proses start. Perubahan dari demo
 
 ---
 
-## 5. Mode VULN vs SECURE
+## 5. Perilaku rentan yang ditanam
 
-`SECURE_MODE=false` (default) → guard otorisasi di `server/authz.js` menjadi
-no-op untuk route yang memang ditandai rentan. `SECURE_MODE=true` →
-semua guard aktif.
+Semua guard otorisasi ada di `server/authz.js` dan sengaja no-op kecuali
+`requireAuth` serta guard kontrol negatif audit-log.
 
-Perbedaan perilaku:
-
-| Endpoint | VULN | SECURE |
+| Endpoint | Perilaku di lab | Yang seharusnya |
 |---|---|---|
-| `POST /api/auth/login` | login normal | sama |
+| `POST /api/auth/login` | login normal, balas token | sama |
 | `GET /api/users/:id/profile` | user mana pun (IDOR baca) | 403 kecuali pemilik/admin |
-| `GET /api/orders/:id` | order siapa pun | 403 kecuali pemilik |
+| `GET /api/users/profile?userId=` | user mana pun (IDOR via query) | 403 kecuali pemilik/admin |
+| `GET /api/orders/:id` | order siapa pun beserta alamat | 403 kecuali pemilik |
+| `PATCH /api/orders/:id` | status order siapa pun bisa diubah | 403 kecuali pemilik/admin |
 | `GET /api/tickets/:id` | tiket siapa pun, termasuk `internalNotes` | 403 kecuali pemilik |
+| `GET /api/addresses/:id` | alamat siapa pun | 403 kecuali pemilik |
 | `PATCH /api/addresses/:id` | alamat siapa pun bisa diubah | 403 kecuali pemilik |
-| `PATCH /api/users/me` | `role` diterima (mass assignment) | `role` diabaikan |
+| `PATCH /api/users/me` | `role` diterima (mass assignment) | allowlist `name/email/phone` |
 | `GET /api/admin/users` | tanpa cek role (BFLA) | 403 untuk non-admin |
 | `DELETE /api/admin/users/:id` | tanpa cek role (BFLA) | 403 untuk non-admin |
+| `POST /api/admin/users/:id/role-change` | customer boleh mengajukan | 403 untuk non-admin |
+| `PATCH /api/admin/role-change-requests/:id/approve` | customer menyetujui miliknya sendiri | 403 untuk non-admin |
+| `GET/PATCH /api/admin/settings` | hanya cek cookie `role=admin` | role dari token |
+| `GET /api/admin/stats`, `/api/admin/orders` | tanpa cek role | 403 untuk non-admin |
+| `GET /api/admin/reports/export` | hanya cek header `Referer` | role dari token |
 | `GET /api/admin/audit-log` | **403 untuk non-admin** | 403 untuk non-admin |
+| `GET /api/company/invoices` | tanpa autentikasi | auth + role partner |
+| `GET /api/employees` | tanpa autentikasi | auth + role internal |
+| `POST /api/cart/checkout` | alamat milik user lain diterima | alamat harus milik pemanggil |
+| `GET /api/invoices/:id`, `/:id/pdf` | invoice siapa pun | 403 kecuali pemilik |
+| `GET /api/documents/:id/download` | dokumen siapa pun | 403 kecuali pemilik/folder |
+| `POST /api/documents` | menulis ke folder partner mana pun | folder harus milik pemanggil |
+| `GET /api/seller/*`, `POST /api/products` | cookie `role=seller` dipercaya | role dari token |
+| `GET /api/articles/:slug` | memuat profil internal penulis | hanya field publik |
 
-Baris terakhir adalah **kontrol negatif**: endpoint tersembunyi yang berhasil
-ditemukan belum tentu rentan. Ini sengaja supaya peserta tidak menyimpulkan
-“bisa menemukan endpoint = temuan”.
+`GET /api/admin/audit-log` adalah **kontrol negatif**: endpoint tersembunyi yang
+berhasil ditemukan belum tentu rentan. Ini sengaja supaya peserta tidak
+menyimpulkan “bisa menemukan endpoint = temuan”.
 
 Setiap titik rentan ditandai komentar di source:
 
 ```js
 // VULN[BFLA - missing authorization check]: ...
-// FIX: requireRole('admin') menolak (403) saat SECURE_MODE=true.
+// FIX: requireRoleStrict('admin') menolak non-admin dengan 403.
 ```
 
 Cari semua penanda:
@@ -149,17 +157,16 @@ Cari semua penanda:
 grep -rn "VULN\[" server/
 ```
 
-`server/authz.js` adalah satu-satunya tempat guard:
+Guard di `server/authz.js`:
 
-- `requireAuth` — selalu aktif di kedua mode.
-- `requireRole(role, { enforce })` — no-op di VULN kecuali `enforce: true`.
-- `requireCookieRole(role)` — VULN membaca cookie `role` yang dapat diubah
-  klien; SECURE membaca role dari token.
-- `refererGuard({ requiredPath })` — VULN hanya memeriksa header `Referer`;
-  SECURE memeriksa role dari token.
-- `ownerOnly(resolveOwnerId, { allowAdmin })` — no-op di VULN.
-- `pickAllowedFields(...fields)` — whitelist field; di SECURE membuang `role`
-  dan field lain di luar daftar.
+- `requireAuth` — selalu aktif: token diverifikasi, user dimuat dari store.
+- `requireRole(role)` — sengaja no-op (missing function-level authorization).
+- `requireRoleStrict(role)` — guard yang benar; dipakai endpoint kontrol negatif.
+- `requireCookieRole(role)` — mempercayai cookie `role` yang dapat diubah klien.
+- `refererGuard({ requiredPath })` — mempercayai header `Referer`.
+- `ownerOnly(resolveOwnerId, { allowAdmin })` — sengaja no-op.
+- `pickAllowedFields(...fields)` — allowlist field; dipakai pada alamat, tetapi
+  tidak pada `PATCH /api/users/me`.
 
 `requireAuth` memuat ulang user dari store pada setiap request (bukan dari klaim
 token). Efek yang disengaja: perubahan `role` di store langsung berlaku pada
@@ -200,7 +207,7 @@ proxy, sehingga request tidak muncul di Burp. Dua solusi:
    manual ke `127.0.0.1:8080`.
 
 Pastikan Burp tidak memblokir `127.0.0.1` di daftar “TLS pass through” dan
-matikan cache browser saat membandingkan VULN vs SECURE.
+matikan cache browser saat membandingkan respons.
 
 ---
 
@@ -221,14 +228,14 @@ release/lab/
 ├─ server/                  # Express + routes + public/ (hasil build)
 ├─ data/seed.json
 ├─ node_modules/            # produksi saja (npm ci --omit=dev)
-├─ start.bat                # SECURE_MODE=false
-├─ start-secure.bat         # SECURE_MODE=true
+├─ start.bat
 ├─ start.sh                 # macOS/Linux, memakai Node terpasang
 └─ README.txt
 ```
 
 Peserta Windows hanya perlu mengekstrak zip lalu double-click `start.bat`.
-Tidak perlu Node.js, npm, atau hak administrator.
+Tidak perlu Node.js, npm, atau hak administrator. Server mencetak satu baris
+peringatan dan URL; tidak ada banner tambahan.
 
 Opsi:
 
@@ -256,11 +263,11 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
 .
 ├─ server/
 │  ├─ index.js          # entry: config, banner, bind, shutdown
-│  ├─ app.js            # createApp({ secure }), static, SPA fallback, error JSON
+│  ├─ app.js            # createApp(), static, SPA fallback, error JSON
 │  ├─ authz.js          # requireAuth, role/cookie/owner guards, pickAllowedFields
 │  ├─ auth.js           # bcrypt + JWT (secret acak per proses)
 │  ├─ db.js             # store in-memory dari data/seed.json
-│  ├─ config.js         # HOST/PORT/SECURE_MODE, deteksi loopback
+│  ├─ config.js         # HOST/PORT, deteksi loopback
 │  ├─ http.js           # format error konsisten
 │  ├─ openapi.js        # dokumen OpenAPI parsial
 │  ├─ routes/           # auth, users, orders, admin, produk, seller, dokumen, dll.
@@ -300,12 +307,12 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
 6. **Frontend memakai router kecil buatan sendiri** (history API) agar tidak
    menambah dependency dan mudah dibaca saat sourcemap dibuka.
 7. **`GET /api/addresses` dan `GET /api/orders`/`GET /api/tickets`** selalu
-   mengembalikan data milik token yang dipakai — di kedua mode. IDOR ada pada
-   endpoint detail berbasis `:id`, sesuai tabel skenario.
+   mengembalikan data milik token yang dipakai. IDOR ada pada endpoint detail
+   berbasis `:id`, sesuai tabel skenario.
 8. **Panel admin** tetap ada di bundle untuk semua user; menu dan tombol hanya
    disembunyikan di klien. Ini adalah bahan demo “UI bukan kontrol akses”.
-9. **Kontrol negatif audit-log** sengaja memakai `requireRole('admin', { enforce: true })`,
-   sehingga 403 di kedua mode.
+9. **Kontrol negatif audit-log** memakai `requireRoleStrict('admin')`, sehingga
+   selalu 403 untuk non-admin.
 10. **Tidak ada endpoint reset atau fitur yang mengeksekusi kode.** Satu-satunya
     unggahan adalah dokumen teks (`.txt`, `.md`, `.csv`, `.log`) yang disimpan
     di memori; tidak ada akses filesystem dari input pengguna.
@@ -330,5 +337,5 @@ lab. Di mesin tanpa internet, siapkan `node.exe` secara manual di
   dan hands-on, request contoh, expected vs actual, dampak.
 - [`docs/PARTICIPANT.md`](docs/PARTICIPANT.md) — tugas berbasis skenario dan
   template PoC.
-- [`docs/remediation.md`](docs/remediation.md) — pasangan snippet
-  VULNERABLE vs SECURE per endpoint.
+- [`docs/remediation.md`](docs/remediation.md) — pasangan snippet rentan vs
+  perbaikan per endpoint.

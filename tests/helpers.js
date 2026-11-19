@@ -4,8 +4,8 @@ const crypto = require('node:crypto');
 const http = require('node:http');
 const { createApp } = require('../server/app');
 
-async function startApp({ secure = false } = {}) {
-  const app = createApp({ secure });
+async function startApp() {
+  const app = createApp();
   const server = http.createServer(app);
   await new Promise((resolve, reject) => {
     server.once('error', reject);

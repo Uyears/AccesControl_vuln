@@ -1,7 +1,6 @@
 'use strict';
 
 const express = require('express');
-const { isSecure } = require('../authz');
 const { notFound } = require('../http');
 
 const router = express.Router();
@@ -30,8 +29,8 @@ function articleView(req, article) {
   // VULN[excessive data exposure + IDOR by GUID]: respons publik ikut
   // mengirim profil internal lengkap (email, telepon, lokasi). GUID yang sama
   // dapat dipakai pada /api/employees/:guid.
-  // FIX: di SECURE hanya field profil yang memang publik.
-  if (!isSecure(req) && employee) {
+  // FIX: kirim hanya field profil yang memang publik.
+  if (employee) {
     view.authorProfile = employee;
   }
 

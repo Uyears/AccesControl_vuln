@@ -6,7 +6,6 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "start:secure": "node server/index.js --secure",
     "dev:server": "node server/index.js",
     "dev:client": "vite --config client/vite.config.mjs",
     "build": "vite build --config client/vite.config.mjs",

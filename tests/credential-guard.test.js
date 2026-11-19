@@ -67,7 +67,7 @@ test('stdout, halaman publik, OpenAPI, dan aset statis bersih dari kredensial', 
   const port = await freePort();
   const child = spawn(process.execPath, [path.join(ROOT, 'server', 'index.js')], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', SECURE_MODE: '' },
+    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1' },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   const output = { stdout: '', stderr: '' };
@@ -80,10 +80,10 @@ test('stdout, halaman publik, OpenAPI, dan aset statis bersih dari kredensial', 
 
   try {
     const deadline = Date.now() + 10000;
-    while (!output.stdout.includes('Listen') && Date.now() < deadline) {
+    while (!output.stdout.includes('http://') && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
-    assert.match(output.stdout, /Listen/, `server tidak start: ${output.stderr}`);
+    assert.match(output.stdout, /http:\/\//, `server tidak start: ${output.stderr}`);
     assertClean('stdout', output.stdout);
     assertClean('stderr', output.stderr);
 
@@ -115,7 +115,7 @@ test('stdout, halaman publik, OpenAPI, dan aset statis bersih dari kredensial', 
 
 test('respons login dan registrasi tidak membocorkan hash password', async () => {
   const { startApp, api, loginSeed } = require('./helpers');
-  const lab = await startApp({ secure: false });
+  const lab = await startApp();
   try {
     const token = await loginSeed(lab, 'alice');
     const me = await api(lab.base, 'GET', '/api/users/me', { token });

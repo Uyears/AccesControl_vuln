@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const { requireAuth, isSecure } = require('../authz');
-const { badRequest, forbidden, notFound } = require('../http');
+const { requireAuth } = require('../authz');
+const { badRequest, notFound } = require('../http');
 
 const router = express.Router();
 
@@ -61,7 +61,7 @@ router.delete('/items/:productId', requireAuth, (req, res) => {
 
 // VULN[BOLA/IDOR pada relasi checkout]: alamat pengiriman boleh milik user
 // lain. Request valid, tetapi pesanan memakai alamat/kontak orang lain.
-// FIX: di SECURE alamat harus milik pemanggil.
+// FIX: pastikan alamat milik pemanggil sebelum membuat order.
 router.post('/checkout', requireAuth, (req, res) => {
   const db = req.app.locals.db;
   const cart = db.cartView(req.user.id);
@@ -73,9 +73,7 @@ router.post('/checkout', requireAuth, (req, res) => {
   }
   const address = db.findAddress(body.addressId);
   if (!address) return notFound(res, 'Alamat pengiriman tidak ditemukan.');
-  if (isSecure(req) && address.userId !== req.user.id) {
-    return forbidden(res, 'Alamat pengiriman bukan milik akun Anda.');
-  }
+
 
   const items = cart.items.map((item) => ({
     productId: item.productId,

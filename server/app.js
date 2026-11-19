@@ -14,13 +14,12 @@ const INDEX_HTML = path.join(PUBLIC_DIR, 'index.html');
 
 /**
  * Factory aplikasi. Setiap pemanggilan mendapat store dan JWT secret sendiri,
- * sehingga tes bisa menjalankan dua instance (VULN dan SECURE) sekaligus tanpa
- * saling mempengaruhi.
+ * sehingga tes bisa menjalankan beberapa instance di port acak tanpa saling
+ * mempengaruhi. Tidak ada mode aman: seluruh guard otorisasi no-op permanen.
  */
-function createApp({ secure = false, port = 3000 } = {}) {
+function createApp({ port = 3000 } = {}) {
   const app = express();
 
-  app.locals.secure = secure === true;
   app.locals.db = createDb();
   app.locals.auth = createAuth();
 

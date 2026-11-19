@@ -3,30 +3,20 @@
 /**
  * Satu-satunya tempat guard otorisasi.
  *
- * Aturan main:
- *  - `requireCookieRole` sengaja lemah di VULN: role dibaca dari cookie
- *    `role` yang bisa diubah klien, bukan dari token. Di SECURE, cookie
- *    diabaikan dan role diambil dari user di store.
- *  - `refererGuard` di VULN hanya memeriksa path pada header Referer; di
- *    SECURE ia menuntut role admin dari token.
- *  - `requireRole` dan `ownerOnly` menjadi no-op saat SECURE_MODE=false,
- *    KECUALI dipanggil dengan `{ enforce: true }` (dipakai endpoint kontrol
- *    negatif /api/admin/audit-log agar selalu 403 untuk non-admin).
- *  - `pickAllowedFields` selalu memfilter; pemanggil yang menentukan field mana
- *    yang boleh, sehingga perbedaan VULN/SECURE terlihat jelas di route.
+ * Lab ini sengaja hanya punya satu mode: VULNERABLE. Tidak ada flag runtime
+ * yang bisa mengaktifkan guard; perilaku rentan adalah perilaku permanen.
+ *
+ *  - `requireAuth` tetap benar: token diverifikasi dan user dimuat dari store.
+ *  - `requireRole` sengaja no-op (missing function-level authorization).
+ *  - `ownerOnly` sengaja no-op (missing object-level authorization).
+ *  - `requireCookieRole` mempercayai cookie `role` yang dikendalikan klien.
+ *  - `refererGuard` mempercayai header `Referer` sebagai kontrol akses.
+ *  - `pickAllowedFields` adalah allowlist field, bukan keputusan otorisasi.
+ *  - `requireRoleStrict` adalah satu-satunya guard role yang benar; dipakai
+ *    khusus oleh endpoint kontrol negatif `/api/admin/audit-log`.
  */
 
 const { unauthorized, forbidden } = require('./http');
-
-function isSecure(req) {
-  return req.app.locals.secure === true;
-}
-
-function shouldEnforce(req, options) {
-  if (options.enforce === true) return true;
-  if (options.enforce === false) return false;
-  return isSecure(req);
-}
 
 function parseBearer(headerValue) {
   if (typeof headerValue !== 'string') return null;
@@ -68,14 +58,23 @@ function requireAuth(req, res, next) {
 }
 
 /**
- * VULN[BFLA]: pada SECURE_MODE=false guard ini no-op, sehingga route admin
- * hanya "dilindungi" oleh UI yang menyembunyikan tombol.
- * FIX: aktifkan guard ini di mode SECURE (default aman).
+ * VULN[BFLA]: guard role sengaja no-op. Route admin hanya "dilindungi" oleh UI
+ * yang menyembunyikan tombol; server tidak memeriksa role sama sekali.
+ * FIX: gunakan `requireRoleStrict` (lihat endpoint audit-log) bila guard ini
+ * benar-benar ingin ditegakkan.
  */
-function requireRole(role, options = {}) {
+function requireRole(role) {
   return function roleGuard(req, res, next) {
-    if (!shouldEnforce(req, options)) return next();
+    return next();
+  };
+}
 
+/**
+ * Guard role yang benar. Hanya dipakai endpoint kontrol negatif agar customer
+ * selalu mendapat 403, bahkan di lab yang seluruh guard lainnya no-op.
+ */
+function requireRoleStrict(role) {
+  return function strictRoleGuard(req, res, next) {
     if (!req.user) {
       return unauthorized(res);
     }
@@ -87,34 +86,13 @@ function requireRole(role, options = {}) {
 }
 
 /**
- * VULN[BOLA/IDOR]: pada SECURE_MODE=false guard ini no-op.
- * FIX: di mode SECURE, pemilik resource (atau admin bila allowAdmin) wajib cocok.
- *
- * `resolveOwnerId(req)` boleh mengembalikan undefined untuk resource yang tidak
- * ada; route tetap akan menjawab 404. Guard ini hanya memutuskan kepemilikan.
+ * VULN[BOLA/IDOR]: guard kepemilikan sengaja no-op. Resource siapa pun bisa
+ * dibaca atau diubah selama token valid.
+ * FIX: panggil `resolveOwnerId(req)` lalu bandingkan dengan `req.user.id`
+ * (atau izinkan admin) seperti pada `requireRoleStrict`.
  */
 function ownerOnly(resolveOwnerId, options = {}) {
   return function ownerGuard(req, res, next) {
-    if (!shouldEnforce(req, options)) return next();
-
-    if (!req.user) {
-      return unauthorized(res);
-    }
-
-    let ownerId;
-    try {
-      ownerId = resolveOwnerId(req);
-    } catch (err) {
-      ownerId = undefined;
-    }
-
-    if (ownerId === undefined || ownerId === null) return next();
-
-    if (options.allowAdmin === true && req.user.role === 'admin') return next();
-
-    if (String(ownerId) !== String(req.user.id)) {
-      return forbidden(res, 'Anda bukan pemilik resource ini.');
-    }
     return next();
   };
 }
@@ -140,19 +118,11 @@ function readCookie(req, name) {
  * VULN[BFLA - client-controlled role]: endpoint seller/company settings
  * mempercayai cookie `role` yang dapat diubah dari browser. Cookie bukan bukti
  * identitas maupun otorisasi; ia hanya data yang dikirim klien.
- * FIX: di SECURE, cookie diabaikan dan role diambil dari user hasil verifikasi
- * token.
+ * FIX: abaikan cookie dan ambil role dari user hasil verifikasi token.
  */
-function requireCookieRole(role, options = {}) {
+function requireCookieRole(role) {
   return function cookieRoleGuard(req, res, next) {
     if (!req.user) return unauthorized(res);
-
-    if (shouldEnforce(req, options)) {
-      if (req.user.role !== role) {
-        return forbidden(res, 'Role akun Anda tidak diizinkan untuk operasi ini.');
-      }
-      return next();
-    }
 
     if (readCookie(req, 'role') !== role) {
       return forbidden(res, 'Role sesi tidak diizinkan untuk operasi ini.');
@@ -162,23 +132,15 @@ function requireCookieRole(role, options = {}) {
 }
 
 /**
- * VULN[BFLA - Referer-based authorization]: di VULN, akses laporan hanya dicek
- * dari header Referer. Header ini dikendalikan klien dan tidak boleh menjadi
+ * VULN[BFLA - Referer-based authorization]: akses laporan hanya dicek dari
+ * header Referer. Header ini dikendalikan klien dan tidak boleh menjadi
  * kontrol akses.
- * FIX: di SECURE, cek role admin dari token; Referer tidak dipakai.
+ * FIX: cek role dari user hasil verifikasi token; Referer tidak dipakai.
  */
 function refererGuard(options = {}) {
   const requiredPath = options.requiredPath || '/admin';
-  const role = options.role || 'admin';
   return function refererAccessGuard(req, res, next) {
     if (!req.user) return unauthorized(res);
-
-    if (shouldEnforce(req, options)) {
-      if (req.user.role !== role) {
-        return forbidden(res, 'Role akun Anda tidak diizinkan untuk operasi ini.');
-      }
-      return next();
-    }
 
     const referer = req.get('referer');
     if (!referer || !referer.includes(requiredPath)) {
@@ -190,7 +152,8 @@ function refererGuard(options = {}) {
 
 /**
  * Whitelist field. Hanya key yang terdaftar yang disalin; sisanya dibuang.
- * Dipakai baik di mode SECURE maupun sebagai alat bantu di route.
+ * Ini bukan guard otorisasi: keputusan siapa yang boleh menyentuh resource
+ * tetap menjadi tanggung jawab route.
  */
 function pickAllowedFields(...allowedFields) {
   const allowed = new Set(allowedFields.flat());
@@ -205,9 +168,9 @@ function pickAllowedFields(...allowedFields) {
 }
 
 module.exports = {
-  isSecure,
   requireAuth,
   requireRole,
+  requireRoleStrict,
   requireCookieRole,
   refererGuard,
   ownerOnly,

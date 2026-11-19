@@ -85,8 +85,7 @@ router.get('/:id', (req, res) => {
 
 // VULN[BFLA - client-controlled role]: pemeriksaan penjual memakai cookie
 // `role`, sehingga customer yang mengubah cookie dapat membuat produk.
-// FIX: requireCookieRole('seller') membaca role dari akun hasil verifikasi
-// token saat SECURE_MODE=true.
+// FIX: ambil role dari akun hasil verifikasi token, bukan cookie.
 router.post('/', requireAuth, requireCookieRole('seller'), (req, res) => {
   const body = req.body;
   const error = validateProduct(body);
@@ -150,8 +149,7 @@ router.patch(
   }
 );
 
-// VULN[BOLA/IDOR - delete]: penghapusan produk tidak memeriksa pemilik saat
-// SECURE_MODE=false.
+// VULN[BOLA/IDOR - delete]: penghapusan produk tidak memeriksa pemilik.
 router.delete(
   '/:id',
   requireAuth,

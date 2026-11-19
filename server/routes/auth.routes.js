@@ -75,8 +75,8 @@ router.post('/login', async (req, res, next) => {
       action: 'auth.login',
       detail: `Login berhasil sebagai ${user.role}.`,
     });
-    // Cookie ini sengaja hanya data tampilan/legacy. Di VULN beberapa endpoint
-    // mempercayainya; di SECURE cookie diabaikan oleh guard.
+    // VULN[BFLA - client-controlled role]: cookie ini dapat diubah klien dan
+    // dipercaya oleh endpoint seller/settings. Role yang benar ada di req.user.
     res.cookie('role', user.role, { sameSite: 'lax', path: '/' });
 
     return res.json({

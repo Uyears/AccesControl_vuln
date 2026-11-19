@@ -21,17 +21,10 @@ function parsePort(raw) {
   return value;
 }
 
-function parseSecureFlag(raw) {
-  if (raw === undefined || raw === null) return false;
-  const value = String(raw).trim().toLowerCase();
-  return value === 'true' || value === '1' || value === 'yes';
-}
-
-function resolveConfig(env = process.env, argv = process.argv.slice(2)) {
+function resolveConfig(env = process.env) {
   const host = (env.HOST && String(env.HOST).trim()) || DEFAULT_HOST;
   const port = parsePort(env.PORT);
-  const secure = parseSecureFlag(env.SECURE_MODE) || argv.includes('--secure');
-  return { host, port, secure };
+  return { host, port };
 }
 
 function isLoopbackHost(host) {

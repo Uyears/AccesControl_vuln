@@ -4,6 +4,7 @@ const express = require('express');
 const {
   requireAuth,
   requireRole,
+  requireRoleStrict,
   requireCookieRole,
   refererGuard,
 } = require('../authz');
@@ -17,7 +18,7 @@ const VALID_ROLES = new Set(['customer', 'seller', 'admin']);
 // VULN[BFLA - missing authorization check]: tidak ada pemeriksaan role.
 // Siapa pun yang punya token valid bisa membaca seluruh daftar user, termasuk
 // email, nomor telepon, dan role.
-// FIX: requireRole('admin') menolak (403) saat SECURE_MODE=true.
+// FIX: requireRoleStrict('admin') menolak non-admin dengan 403.
 router.get('/users', requireAuth, requireRole('admin'), (req, res) => {
   const users = req.app.locals.db.listUsers();
   res.json({ users, count: users.length });
@@ -48,7 +49,7 @@ router.delete('/users/:id', requireAuth, requireRole('admin'), (req, res) => {
 // VULN[BFLA - missing function-level authorization]: customer boleh membuat
 // permintaan perubahan role untuk dirinya sendiri (atau akun lain). Tidak ada
 // pemeriksaan role pada langkah ini.
-// FIX: SECURE mensyaratkan admin.
+// FIX: gunakan requireRoleStrict('admin').
 router.post('/users/:id/role-change', requireAuth, requireRole('admin'), (req, res) => {
   const db = req.app.locals.db;
   const target = db.findUserById(req.params.id);
@@ -75,7 +76,7 @@ router.post('/users/:id/role-change', requireAuth, requireRole('admin'), (req, r
 // VULN[BFLA - missing function-level authorization + two-step escalation]:
 // customer dapat menyetujui permintaan role-nya sendiri. Perubahan baru aktif
 // pada request berikutnya karena requireAuth memuat user dari store.
-// FIX: SECURE hanya admin yang boleh menyetujui.
+// FIX: hanya admin yang boleh menyetujui.
 router.patch(
   '/role-change-requests/:id/approve',
   requireAuth,
@@ -117,7 +118,7 @@ router.get(
 
 // VULN[BFLA - client-controlled role]: endpoint pengaturan operasional hanya
 // memeriksa cookie `role`, yang bisa diubah klien dari DevTools/Burp.
-// FIX: SECURE membaca role dari akun hasil verifikasi token.
+// FIX: ambil role dari akun hasil verifikasi token, bukan cookie.
 router.get(
   '/settings',
   requireAuth,
@@ -180,7 +181,7 @@ router.get('/orders', requireAuth, requireRole('admin'), (req, res) => {
 
 // VULN[BFLA - Referer-based authorization]: hanya header Referer yang dicek.
 // Header ini dapat dipalsukan lewat Burp/curl. Data CSV berisi email pelanggan.
-// FIX: SECURE memakai role admin dari token; Referer tidak dipercaya.
+// FIX: pakai role admin dari token; Referer tidak dipercaya.
 router.get(
   '/reports/export',
   requireAuth,
@@ -207,13 +208,13 @@ router.get(
   }
 );
 
-// KONTROL NEGATIF — sengaja selalu 403 untuk non-admin di kedua mode.
-// { enforce: true } memaksa guard berjalan meskipun SECURE_MODE=false.
-// Tujuannya: endpoint tersembunyi yang berhasil ditemukan belum tentu rentan.
+// KONTROL NEGATIF — selalu 403 untuk non-admin, bahkan di lab yang seluruh
+// guard lainnya no-op. Tujuannya: endpoint tersembunyi yang berhasil ditemukan
+// belum tentu rentan.
 router.get(
   '/audit-log',
   requireAuth,
-  requireRole('admin', { enforce: true }),
+  requireRoleStrict('admin'),
   (req, res) => {
     res.json({ entries: req.app.locals.db.listAuditLog() });
   }

@@ -11,7 +11,7 @@ aplikasi ini bisa dilewati — lalu menjelaskan buktinya.
 
 ## Persiapan
 
-1. Fasilitator menjalankan server mode rentan.
+1. Fasilitator menjalankan server lab di laptop.
 2. Buka `http://127.0.0.1:3000`.
 3. Daftar akun pelanggan baru lewat halaman **Daftar**, atau pakai akun yang
    dibagikan fasilitator secara lisan. Jangan memakai kredensial bawaan yang
@@ -81,17 +81,17 @@ hanya tampilan.
 Setelah itu, akses salah satu endpoint operasional dan lakukan satu aksi yang
 seharusnya hanya boleh dilakukan staf. Catat siapa yang terdampak.
 
-### Bandingkan dengan mode aman
+### Bandingkan dengan bentuk perbaikan
 
-Minta fasilitator menjalankan mode `SECURE_MODE=true` (biasanya port berbeda).
-Ulangi request yang sama:
+Lab ini hanya punya satu perilaku: rentan. Untuk melihat bentuk perbaikannya,
+buka `server/authz.js` dan `docs/remediation.md`, lalu bandingkan:
 
-- Mana yang sekarang 403?
-- Apa yang terjadi saat Anda mengirim field `role`?
-- Apakah endpoint kontrol negatif berubah perilakunya?
+- Guard mana yang di lab sengaja no-op, dan apa isi guard yang benar?
+- Mengapa `role` harus diambil dari token, bukan cookie atau `Referer`?
+- Mengapa endpoint kontrol negatif tetap 403 tanpa mengubah kode route?
 
-Simpan perbandingan sebelum vs sesudah. Ini bagian yang membedakan “menemukan
-bug” dari “memahami perbaikan”.
+Simpan catatan sebelum vs sesudah. Ini bagian yang membedakan “menemukan bug”
+dari “memahami perbaikan”.
 
 ### Jelaskan dampaknya
 
@@ -125,7 +125,7 @@ Jangan menyertakan token asli di laporan akhir; ganti dengan `<TOKEN>`.
 
 **Aktor:** pelanggan biasa (akun Anda)
 **Target:** <endpoint + id objek>
-**Mode:** VULNERABLE
+**Perilaku:** rentan
 
 **Request**
 ```http

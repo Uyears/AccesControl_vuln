@@ -73,8 +73,8 @@ router.patch(
       return badRequest(res, 'Body harus berupa objek JSON.');
     }
 
-    // Field-level allowlist berlaku di kedua mode: id/userId tidak pernah
-    // diambil dari body. Materi lab ada pada object-level authorization.
+    // Field-level allowlist: id/userId tidak pernah diambil dari body.
+    // Materi lab ada pada object-level authorization.
     const patch = pickAllowedFields(ADDRESS_FIELDS)(body);
     for (const field of ADDRESS_FIELDS) {
       if (field in patch && (typeof patch[field] !== 'string' || patch[field].length > 200)) {

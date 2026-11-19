@@ -3,7 +3,7 @@
 
 /**
  * Merakit paket portable Windows: node.exe + server + frontend build +
- * node_modules produksi + start.bat / start-secure.bat, lalu (bila tersedia)
+ * node_modules produksi + start.bat, lalu (bila tersedia)
  * membungkusnya menjadi satu zip.
  *
  * Prasyarat di mesin perakit:
@@ -173,31 +173,13 @@ function writeStartScripts() {
     '@echo off',
     'setlocal',
     'cd /d "%~dp0"',
-    '',
-    'rem Intentionally vulnerable training lab. Data fiktif. Jangan deploy ke publik.',
-    'set "SECURE_MODE=false"',
     'set "HOST=127.0.0.1"',
     'if "%PORT%"=="" set "PORT=3000"',
-    '',
-    'echo.',
-    'echo  Nusa Supply - Broken Access Control Lab (MODE VULNERABLE)',
-    'echo  Buka http://127.0.0.1:%PORT% setelah server siap.',
-    'echo  Hentikan dengan Ctrl+C.',
-    'echo.',
-    '',
     'node.exe server\\index.js',
-    'echo.',
-    'echo  Server berhenti.',
-    'pause',
     '',
   ].join('\r\n');
 
-  const startSecureBat = startBat
-    .replace('(MODE VULNERABLE)', '(MODE SECURE)')
-    .replace('set "SECURE_MODE=false"', 'set "SECURE_MODE=true"');
-
   fs.writeFileSync(path.join(LAB_DIR, 'start.bat'), startBat);
-  fs.writeFileSync(path.join(LAB_DIR, 'start-secure.bat'), startSecureBat);
 
   const startSh = [
     '#!/usr/bin/env bash',
@@ -207,7 +189,7 @@ function writeStartScripts() {
     '  echo "Frontend belum dibangun. Jalankan: npm run build" >&2',
     '  exit 1',
     'fi',
-    'exec node server/index.js "$@"',
+    'exec node server/index.js',
     '',
   ].join('\n');
   fs.writeFileSync(path.join(LAB_DIR, 'start.sh'), startSh, { mode: 0o755 });
@@ -222,8 +204,7 @@ function writeReadme() {
     '',
     'WINDOWS',
     '  1. Ekstrak seluruh isi zip ke satu folder.',
-    '  2. Double-click start.bat         -> mode VULNERABLE',
-    '     atau start-secure.bat          -> mode SECURE',
+    '  2. Double-click start.bat',
     '  3. Browser akan diarahkan ke http://127.0.0.1:3000 (buka manual bila perlu).',
     '  4. Hentikan server dengan Ctrl+C di jendela command prompt.',
     '',
@@ -231,8 +212,7 @@ function writeReadme() {
     '',
     'MAC / LINUX',
     '  1. Pastikan Node.js 18+ terpasang.',
-    '  2. ./start.sh            -> mode VULNERABLE',
-    '     ./start.sh --secure   -> mode SECURE',
+    '  2. ./start.sh',
     '',
     'AKUN LATIHAN',
     '  Kredensial akun dibagikan langsung oleh fasilitator dan tidak',

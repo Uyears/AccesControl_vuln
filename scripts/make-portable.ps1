@@ -5,7 +5,7 @@
 
 .DESCRIPTION
   Menghasilkan release\lab berisi node.exe resmi, server, frontend build,
-  node_modules produksi, start.bat, dan start-secure.bat, lalu membungkusnya
+  node_modules produksi, dan start.bat, lalu membungkusnya
   menjadi release\bac-lab-portable.zip.
 
   Prasyarat: Node.js + npm terpasang, koneksi internet, PowerShell 5.1+.
@@ -102,32 +102,14 @@ $startBat = @"
 @echo off
 setlocal
 cd /d "%~dp0"
-
-rem Intentionally vulnerable training lab. Data fiktif. Jangan deploy ke publik.
-set "SECURE_MODE=false"
 set "HOST=127.0.0.1"
 if "%PORT%"=="" set "PORT=3000"
-
-echo.
-echo  Nusa Supply - Broken Access Control Lab (MODE VULNERABLE)
-echo  Buka http://127.0.0.1:%PORT% setelah server siap.
-echo  Hentikan dengan Ctrl+C.
-echo.
-
 node.exe server\index.js
-echo.
-echo  Server berhenti.
-pause
 "@
-
-$startSecureBat = $startBat.
-  Replace("(MODE VULNERABLE)", "(MODE SECURE)").
-  Replace('set "SECURE_MODE=false"', 'set "SECURE_MODE=true"')
 
 # Batch file harus CRLF dan ASCII agar aman di cmd.exe.
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $LabDir "start.bat"), ($startBat -replace "`r?`n", "`r`n"), $utf8NoBom)
-[System.IO.File]::WriteAllText((Join-Path $LabDir "start-secure.bat"), ($startSecureBat -replace "`r?`n", "`r`n"), $utf8NoBom)
 
 # 5. README singkat.
 $readme = @"
@@ -138,8 +120,7 @@ Intentionally vulnerable training lab. Data fiktif. Jangan deploy ke publik.
 
 WINDOWS
   1. Ekstrak seluruh isi zip ke satu folder.
-  2. Double-click start.bat         -> mode VULNERABLE
-     atau start-secure.bat          -> mode SECURE
+  2. Double-click start.bat
   3. Buka http://127.0.0.1:3000
   4. Hentikan server dengan Ctrl+C.
 
